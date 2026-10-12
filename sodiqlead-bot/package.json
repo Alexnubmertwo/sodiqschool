@@ -1,0 +1,13 @@
+{
+  "name": "sodiqlead-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Telegram bot for linking SodiqLead student accounts",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
