@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { copyFile, mkdir, readFile, readdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -25,7 +25,6 @@ const classes = new Set();
 const posts = new Map();
 const initiatives = new Map();
 const problems = new Map();
-const problemsByAddress = new Map();
 const imagePattern = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
 const issuedByAddress = new Map();
 const loginAttemptsByAddress = new Map();
@@ -134,8 +133,13 @@ function publicPost(post, account) {
   return { ...visiblePost, goingCount: attendees.length, going: Boolean(account && attendees.includes(account.telegramId)) };
 }
 
-function publicProblem(problem, token = '') {
-  return { id: problem.id, text: problem.text, createdAt: problem.createdAt, supportCount: problem.supporters.length, supported: Boolean(token && problem.supporters.includes(token)) };
+function publicProblem(problem, key = '') {
+  return { id: problem.id, text: problem.text, createdAt: problem.createdAt, supportCount: problem.supporters.length, supported: Boolean(key && problem.supporters.includes(key)) };
+}
+
+// Stable keyed hash of an account; stored instead of the account id so supports cannot be traced back without the server secret.
+function problemKey(telegramId) {
+  return createHmac('sha256', apiSecret).update(String(telegramId)).digest('hex').slice(0, 32);
 }
 
 // undefined = keep existing, null = remove, string = new valid image, false = invalid
@@ -245,38 +249,36 @@ const server = createServer(async (request, response) => {
       return json(response, 200, { goingCount: event.attendees.length, going: existing < 0 });
     }
     if (request.method === 'GET' && url.pathname === '/api/problems') {
-      const token = String(url.searchParams.get('token') ?? '');
-      const validToken = /^[a-f0-9]{16,64}$/.test(token) ? token : '';
-      return json(response, 200, { problems: [...problems.values()].sort((a, b) => b.createdAt - a.createdAt).map(problem => publicProblem(problem, validToken)) });
+      const account = getAccount(request);
+      const key = account ? problemKey(account.telegramId) : '';
+      return json(response, 200, { canWrite: Boolean(account), problems: [...problems.values()].sort((a, b) => b.createdAt - a.createdAt).map(problem => publicProblem(problem, key)) });
     }
     if (request.method === 'POST' && url.pathname === '/api/problems') {
-      const address = request.socket.remoteAddress ?? 'unknown';
-      const recent = (problemsByAddress.get(address) ?? []).filter(time => Date.now() - time < 10 * 60_000);
-      if (recent.length >= 3) return json(response, 429, { error: 'Слишком много сообщений. Попробуй через несколько минут.' });
+      const account = getAccount(request);
+      if (!account) return json(response, 401, { error: 'Войди в аккаунт ученика, чтобы написать проблему.' });
+      if (!allowAction(`problem:${account.telegramId}`, 3, 10 * 60_000)) return json(response, 429, { error: 'Слишком много сообщений. Попробуй через несколько минут.' });
       const body = await readBody(request);
       const text = String(body.text ?? '').trim();
       if (text.length < 5 || text.length > 1000) return json(response, 400, { error: 'Опиши проблему в 5–1000 символах.' });
-      // Anonymous: no name, no account and no IP is stored with the problem.
+      // Anonymous: the record holds no name, account or IP. Only a keyed hash of the account is kept, for "Я тоже".
       const problem = { id: randomBytes(8).toString('hex'), text, createdAt: Date.now(), supporters: [] };
       problems.set(problem.id, problem);
-      recent.push(Date.now());
-      problemsByAddress.set(address, recent);
       await persist();
-      return json(response, 201, publicProblem(problem));
+      return json(response, 201, publicProblem(problem, problemKey(account.telegramId)));
     }
     const problemSupportMatch = url.pathname.match(/^\/api\/problems\/([a-f0-9]+)\/support$/);
     if (request.method === 'POST' && problemSupportMatch) {
+      const account = getAccount(request);
+      if (!account) return json(response, 401, { error: 'Войди в аккаунт ученика, чтобы поддержать проблему.' });
       const problem = problems.get(problemSupportMatch[1]);
       if (!problem) return json(response, 404, { error: 'Проблема не найдена.' });
-      const body = await readBody(request);
-      const token = String(body.token ?? '').trim();
-      if (!/^[a-f0-9]{16,64}$/.test(token)) return json(response, 400, { error: 'Некорректный токен.' });
-      if (!allowAction(`support:${token}`, 60, 60_000)) return json(response, 429, { error: 'Слишком часто. Подожди минуту.' });
-      const existing = problem.supporters.indexOf(token);
+      if (!allowAction(`support:${account.telegramId}`, 60, 60_000)) return json(response, 429, { error: 'Слишком часто. Подожди минуту.' });
+      const key = problemKey(account.telegramId);
+      const existing = problem.supporters.indexOf(key);
       if (existing >= 0) problem.supporters.splice(existing, 1);
-      else problem.supporters.push(token);
+      else problem.supporters.push(key);
       await persist();
-      return json(response, 200, publicProblem(problem, token));
+      return json(response, 200, publicProblem(problem, key));
     }
     if (request.method === 'GET' && url.pathname === '/api/rating') {
       if (!getAccount(request)) return json(response, 401, { error: 'Войди в аккаунт, чтобы открыть рейтинг.' });

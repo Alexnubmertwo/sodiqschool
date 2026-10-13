@@ -78,7 +78,7 @@
         <article class="idea-card"><div class="idea-icon">🧩</div><h3>Клубы по интересам</h3><p>Открыть встречи для тех, кто любит шахматы, настольные игры и головоломки.</p><div class="idea-foot"><span class="status">В планах</span><button class="vote" data-vote="clubs">♡ <span data-count="clubs">31</span></button></div></article>
       </div>
     </div></section>
-    <section class="wrap section" id="problems"><div class="section-head"><div><span class="eyebrow">Анонимно</span><h2>Проблемы школы</h2></div></div><p class="admin-description">Расскажи о проблеме без имени. Твоё имя нигде не сохраняется, автор не виден ни ученикам, ни администрации.</p><div class="problems-root" data-problems-root></div></section>
+    <section class="wrap section" id="problems"><div class="section-head"><div><span class="eyebrow">Анонимно</span><h2>Проблемы школы</h2></div></div><p class="admin-description">Расскажи о проблеме без имени. Писать могут только вошедшие ученики, а имя нигде не сохраняется.</p><div class="problems-root" data-problems-root></div></section>
     <section class="wrap proposal" id="about"><span class="eyebrow">Твоя очередь</span><h2>Есть идея? Давай обсудим.</h2><p>Большие перемены начинаются с одного предложения.</p><button class="pill" data-open-modal>Предложить инициативу&nbsp; ↗</button></section>
   </main>
   <footer class="footer"><div class="wrap footer-inner"><span>© 2026 SodiqSchool</span><span>Школьные инициативы — вместе 💜</span></div></footer>
@@ -293,11 +293,13 @@
       "Фото слишком большое даже после сжатия. Возьми фото поменьше.":"Rasm siqilgandan keyin ham katta. Kichikroq rasm tanlang.",
       "Анонимно":"Anonim",
       "Проблемы школы":"Maktab muammolari",
-      "Расскажи о проблеме без имени. Твоё имя нигде не сохраняется, автор не виден ни ученикам, ни администрации.":"Muammo haqida ismsiz yozing. Ismingiz hech qayerda saqlanmaydi, muallif na o‘quvchilarga, na administratsiyaga ko‘rinmaydi.",
+      "Расскажи о проблеме без имени. Писать могут только вошедшие ученики, а имя нигде не сохраняется.":"Muammo haqida ismsiz yozing. Faqat kirgan o‘quvchilar yoza oladi, ismingiz hech qayerda saqlanmaydi.",
       "Пиши, что мешает учёбе и жизни школы. Имя не сохраняется, так что можно говорить прямо.":"O‘qish va maktab hayotiga nima to‘sqinlik qilayotganini yozing. Ism saqlanmaydi, shuning uchun ochiq gapirishingiz mumkin.",
       "Твоя проблема":"Sizning muammoingiz",
       "Опиши, что не так в школе…":"Maktabda nima noto‘g‘ri ekanini yozing…",
-      "Ник и имя не сохраняются. Автор не виден ни ученикам, ни администрации.":"Ism va nik saqlanmaydi. Muallif na o‘quvchilarga, na administratsiyaga ko‘rinmaydi.",
+      "Писать могут только вошедшие ученики. Имя не сохраняется, автор не виден никому.":"Faqat kirgan o‘quvchilar yoza oladi. Ism saqlanmaydi, muallif hech kimga ko‘rinmaydi.",
+      "Войди, чтобы написать проблему.":"Muammo yozish uchun kiring.",
+      "Войди, чтобы поддержать проблему.":"Muammoni qo‘llab-quvvatlash uchun kiring.",
       "Отправить анонимно":"Anonim yuborish",
       "Я тоже":"Men ham",
       "Пока нет проблем.":"Hozircha muammolar yo‘q.",
@@ -623,23 +625,18 @@
       try{const response=await fetch('/api/admin/classes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({className:input.value})});const result=await response.json();if(!response.ok)throw new Error(result.error);renderClassList(result.classes);input.value='';loadClassOptions();document.querySelector('#adminMessage').textContent=tr('Класс добавлен и доступен при регистрации.')}
       catch(error){document.querySelector('#adminMessage').textContent=error.message}
     });
-    const anonToken=(()=>{
-      const random=()=>[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
-      try{let token=localStorage.getItem('sodiqschool-anon');if(!/^[a-f0-9]{16,64}$/.test(token||'')){token=random();localStorage.setItem('sodiqschool-anon',token)}return token}
-      catch{return random()}
-    })();
     let problemsCache=[];
     let pendingImage=undefined;
     const MAX_IMAGE_CHARS=1300000;
     async function loadProblems(){
-      try{const response=await fetch(`/api/problems?token=${anonToken}`);const result=await response.json();if(!response.ok)throw new Error(result.error);problemsCache=result.problems;renderProblemRoots();if(currentAccount?.isAdmin)renderAdminProblems()}
+      try{const response=await fetch('/api/problems');const result=await response.json();if(!response.ok)throw new Error(result.error);problemsCache=result.problems;renderProblemRoots();if(currentAccount?.isAdmin)renderAdminProblems()}
       catch(error){showToast(error.message||'Не удалось загрузить проблемы.')}
     }
     function renderProblemRoots(){
       document.querySelectorAll('[data-problems-root]').forEach(root=>{
         root.replaceChildren();
         const form=document.createElement('form');form.className='problem-form';
-        form.innerHTML=`<label><span>${tr('Твоя проблема')}</span><textarea name="text" required minlength="5" maxlength="1000" placeholder="${tr('Опиши, что не так в школе…')}"></textarea></label><p class="problem-note">${tr('Ник и имя не сохраняются. Автор не виден ни ученикам, ни администрации.')}</p><button class="pill" type="submit">${tr('Отправить анонимно')}</button>`;
+        form.innerHTML=`<label><span>${tr('Твоя проблема')}</span><textarea name="text" required minlength="5" maxlength="1000" placeholder="${tr('Опиши, что не так в школе…')}"></textarea></label><p class="problem-note">${tr('Писать могут только вошедшие ученики. Имя не сохраняется, автор не виден никому.')}</p><button class="pill" type="submit">${tr('Отправить анонимно')}</button>`;
         root.append(form);
         const list=document.createElement('div');list.className='problem-list';
         if(!problemsCache.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=tr('Пока нет проблем.');list.append(empty)}
@@ -676,6 +673,7 @@
       const button=form.querySelector('button[type="submit"]');button.disabled=true;
       try{
         const response=await fetch('/api/problems',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:form.elements.text.value})});
+        if(response.status===401){openAuth('login');showToast('Войди, чтобы написать проблему.');return}
         const result=await response.json();if(!response.ok)throw new Error(result.error);
         form.reset();showToast('Проблема отправлена анонимно.');await loadProblems();
       }catch(error){showToast(error.message||'Не удалось отправить.')}
@@ -684,7 +682,8 @@
     document.addEventListener('click',async event=>{
       const button=event.target.closest?.('.problem-support');if(!button)return;
       try{
-        const response=await fetch(`/api/problems/${button.dataset.id}/support`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:anonToken})});
+        const response=await fetch(`/api/problems/${button.dataset.id}/support`,{method:'POST',headers:{'content-type':'application/json'},});
+        if(response.status===401){openAuth('login');showToast('Войди, чтобы поддержать проблему.');return}
         const result=await response.json();if(!response.ok)throw new Error(result.error);
         await loadProblems();
       }catch(error){showToast(error.message||'Не удалось поддержать.')}
