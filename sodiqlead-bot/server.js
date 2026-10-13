@@ -16,8 +16,10 @@ try {
 const port = Number(process.env.PORT ?? 3000);
 const apiSecret = process.env.SODIQLEAD_API_SECRET;
 const adminTelegramUsername = (process.env.SODIQSCHOOL_ADMIN_TELEGRAM ?? '').replace(/^@/, '').toLocaleLowerCase('en');
-const dbPath = path.join(directory, 'data.json');
-const backupDirectory = path.join(directory, 'backups');
+// DATA_DIR should point at a persistent volume in production; the default is the app folder (lost on redeploy).
+const dataDirectory = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : directory;
+const dbPath = path.join(dataDirectory, 'data.json');
+const backupDirectory = path.join(dataDirectory, 'backups');
 const codes = new Map();
 const accounts = new Map();
 const sessions = new Map();
@@ -179,6 +181,12 @@ function getAccount(request) {
   return account ? { ...account, telegramId: session.telegramId, sessionId } : null;
 }
 
+// Behind Railway's proxy the socket address is shared by everyone, so use the address the proxy appended to X-Forwarded-For.
+function clientAddress(request) {
+  const forwarded = String(request.headers['x-forwarded-for'] ?? '').split(',').map(part => part.trim()).filter(Boolean);
+  return forwarded.at(-1) ?? request.socket.remoteAddress ?? 'unknown';
+}
+
 function isAdmin(account) {
   return Boolean(adminTelegramUsername && account?.username?.replace(/^@/, '').trim().toLocaleLowerCase('en') === adminTelegramUsername);
 }
@@ -276,7 +284,7 @@ const server = createServer(async (request, response) => {
       if (!account && !/^[a-f0-9]{16,64}$/.test(token)) return json(response, 400, { error: 'Не удалось определить браузер. Обнови страницу.' });
       const problem = problems.get(problemSupportMatch[1]);
       if (!problem) return json(response, 404, { error: 'Проблема не найдена.' });
-      const limitKey = account ? `support:${account.telegramId}` : `support-ip:${request.socket.remoteAddress ?? 'unknown'}`;
+      const limitKey = account ? `support:${account.telegramId}` : `support-ip:${clientAddress(request)}`;
       if (!allowAction(limitKey, account ? 60 : 30, 60_000)) return json(response, 429, { error: 'Слишком часто. Подожди минуту.' });
       const key = account ? problemKey(account.telegramId) : problemKey(`anon:${token}`);
       const existing = problem.supporters.indexOf(key);
@@ -380,7 +388,7 @@ const server = createServer(async (request, response) => {
     }
 
     if (request.method === 'POST' && url.pathname === '/api/register') {
-      const address = request.socket.remoteAddress ?? 'unknown';
+      const address = clientAddress(request);
       const recent = (issuedByAddress.get(address) ?? []).filter(time => Date.now() - time < 60_000);
       if (recent.length >= maxRegistrationsPerWindow) return json(response, 429, { error: 'Слишком много попыток. Попробуй позже.' });
       const body = await readBody(request);
@@ -399,7 +407,7 @@ const server = createServer(async (request, response) => {
     }
 
     if (request.method === 'POST' && url.pathname === '/api/login') {
-      const address = request.socket.remoteAddress ?? 'unknown';
+      const address = clientAddress(request);
       const recent = (loginAttemptsByAddress.get(address) ?? []).filter(time => Date.now() - time < 60_000);
       if (recent.length >= 10) return json(response, 429, { error: 'Слишком много попыток входа. Попробуй через минуту.' });
       recent.push(Date.now());
