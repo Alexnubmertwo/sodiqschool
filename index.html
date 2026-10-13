@@ -19,8 +19,8 @@
   <a class="skip-link" href="#top">Перейти к содержимому</a>
   <header class="wrap topbar">
     <a class="brand" href="#top" style="text-decoration:none;color:inherit"><img class="school-logo" src="https://sodiqschool.uz/icon.jpg?ed148fd4f0a9fa95" alt="Логотип Sodiq School" width="40" height="40" decoding="async"><span>SodiqSchool<small>Школьное самоуправление</small></span></a>
-    <nav class="nav"><a href="#news">Новости</a><a href="#ideas">Инициативы</a><a href="#about">О проекте</a></nav>
-    <div class="auth-actions"><button class="button-light" data-open-login>Войти</button><button class="pill" data-open-registration>Регистрация&nbsp; ↗</button><span id="signedInBadge" hidden></span><button class="button-light" id="logoutButton" hidden>Выйти</button></div>
+    <nav class="nav"><a href="#news">Новости</a><a href="#ideas">Инициативы</a><a href="#problems">Проблемы</a><a href="#about">О проекте</a></nav>
+    <div class="auth-actions"><div class="lang-switch" role="group" aria-label="Язык"><button type="button" data-lang="ru" aria-pressed="true">RU</button><button type="button" data-lang="uz" aria-pressed="false">UZ</button></div><button class="button-light" data-open-login>Войти</button><button class="pill" data-open-registration>Регистрация&nbsp; ↗</button><span id="signedInBadge" hidden></span><button class="button-light" id="logoutButton" hidden>Выйти</button></div>
   </header>
   <main id="top">
     <section class="wrap hero">
@@ -29,12 +29,13 @@
     </section>
     <section class="wrap student-dashboard" id="studentDashboard" hidden>
       <div class="dashboard-heading"><div><span class="eyebrow">Внутренний портал</span><h1>Привет, <em id="studentGreeting">ученик</em>!</h1><p id="studentClass"></p></div><span class="student-stamp">SodiqSchool · Student space</span></div>
-      <nav class="dashboard-tabs"><button class="dash-tab active" data-dashboard-view="initiatives">Инициативы</button><button class="dash-tab" data-dashboard-view="news">Новости</button><button class="dash-tab" data-dashboard-view="events">Мероприятия</button><button class="dash-tab" data-dashboard-view="rating">Рейтинг</button><button class="dash-tab" id="adminTab" data-dashboard-view="admin" hidden>Админ-панель</button></nav>
+      <nav class="dashboard-tabs"><button class="dash-tab active" data-dashboard-view="initiatives">Инициативы</button><button class="dash-tab" data-dashboard-view="news">Новости</button><button class="dash-tab" data-dashboard-view="events">Мероприятия</button><button class="dash-tab" data-dashboard-view="rating">Рейтинг</button><button class="dash-tab" data-dashboard-view="problems">Проблемы</button><button class="dash-tab" id="adminTab" data-dashboard-view="admin" hidden>Админ-панель</button></nav>
       <div class="dashboard-view" id="dashboardInitiatives"><div class="section-head"><div><span class="eyebrow">Голос учеников</span><h2>Инициативы</h2></div><button class="pill" data-open-modal>＋ Предложить идею</button></div><div class="initiative-filters" data-initiative-filter="dashboard"><input data-filter-search placeholder="Поиск идей…" aria-label="Поиск инициатив"><select data-filter-category aria-label="Фильтр по категории"><option value="">Все категории</option></select><select data-filter-class aria-label="Фильтр по классу"><option value="">Все классы</option></select><select data-filter-status aria-label="Фильтр по статусу"><option value="">Все статусы</option></select><select data-filter-period aria-label="Фильтр по дате"><option value="0">За всё время</option><option value="7">7 дней</option><option value="14">14 дней</option><option value="30">30 дней</option></select><select data-filter-sort aria-label="Сортировка"><option value="new">Сначала новые</option><option value="popular">Сначала популярные</option></select></div><h3 class="subheading">Популярные идеи · голосование 14 дней</h3><div id="popularIdeas" class="idea-grid popular-ideas"></div><h3 class="subheading">Все инициативы</h3><div class="idea-grid dashboard-ideas"></div></div>
       <div class="dashboard-view" id="dashboardNews" hidden><div class="section-head"><div><span class="eyebrow">Что происходит</span><h2>Новости школы</h2></div></div><div class="news-grid dashboard-news"></div></div>
       <div class="dashboard-view" id="dashboardEvents" hidden><div class="section-head"><div><span class="eyebrow">Календарь школы</span><h2>Мероприятия</h2></div></div><div class="news-grid dashboard-events"></div></div>
       <div class="dashboard-view" id="dashboardRating" hidden><div class="section-head"><div><span class="eyebrow">Активность школы</span><h2>Рейтинг классов</h2><p class="rating-period">За последние 14 дней</p></div><button class="button-light" id="refreshRating" type="button">↻ Обновить</button></div><div id="ratingList" class="rating-list" aria-live="polite"><p class="empty-content">Загружаем рейтинг…</p></div></div>
-      <div class="dashboard-view" id="dashboardAdmin" hidden><div class="section-head"><div><span class="eyebrow">Управление порталом</span><h2>Админ-панель</h2></div></div><div id="adminStats" class="admin-stats"></div><h3 class="subheading">Модерация инициатив</h3><div id="moderationList" class="moderation-list"></div><div class="section-head"><div><h2>Создать публикацию</h2></div></div><p class="admin-description">Новости и мероприятия публикует только администратор. Статус и пояснение к идее увидит автор, уведомление придёт в Telegram.</p><form id="postForm" class="admin-post-form"><input type="hidden" name="postId" id="postId"><div class="field"><label for="postType">Категория</label><select id="postType" name="type"><option value="news">Новость</option><option value="event">Мероприятие</option></select></div><div class="field"><label for="postTitle">Заголовок</label><input id="postTitle" name="title" maxlength="100" required></div><div class="field"><label for="postCategory">Тема</label><input id="postCategory" name="category" maxlength="40" placeholder="Например, Школьная жизнь"></div><div class="field"><label for="postDate">Дата</label><input id="postDate" type="date"></div><div class="field"><label for="postTime">Время</label><input id="postTime" type="time"></div><p id="dateHint" class="admin-description" style="margin:6px 0 0;font-size:11px"></p><div id="eventFields" hidden><div class="field"><label for="postLocation">Место</label><input id="postLocation" maxlength="120" placeholder="Например, актовый зал"></div></div><div class="field"><label for="postDescription">Текст</label><textarea id="postDescription" name="description" maxlength="2000" required></textarea></div><button class="pill" type="submit">Опубликовать</button><button class="button-light cancel-post-edit" type="button" hidden>Отменить редактирование</button></form><p id="adminMessage" class="admin-message" role="status"></p><h3 class="subheading">Мои публикации</h3><div id="adminPostList" class="admin-post-list"></div><div class="section-head"><div><h2>Классы</h2></div></div><p class="admin-description">Добавляй произвольные названия, например «10Oxford» или «8Б-Экология».</p><div id="classAdmin"><form id="addClassForm" class="add-class-form"><input id="newClassName" maxlength="30" placeholder="Например, 10Oxford" required><button class="pill" type="submit">＋ Добавить класс</button></form><div id="classList" class="class-list"></div></div></div>
+      <div class="dashboard-view" id="dashboardProblems" hidden><div class="section-head"><div><span class="eyebrow">Анонимно</span><h2>Проблемы</h2></div></div><p class="admin-description">Пиши, что мешает учёбе и жизни школы. Имя не сохраняется, так что можно говорить прямо.</p><div class="problems-root" data-problems-root></div></div>
+      <div class="dashboard-view" id="dashboardAdmin" hidden><div class="section-head"><div><span class="eyebrow">Управление порталом</span><h2>Админ-панель</h2></div></div><div id="adminStats" class="admin-stats"></div><h3 class="subheading">Модерация инициатив</h3><div id="moderationList" class="moderation-list"></div><button class="button-light danger-link" id="clearInitiatives" type="button">Удалить все инициативы</button><div class="section-head"><div><h2>Создать публикацию</h2></div></div><p class="admin-description">Новости и мероприятия публикует только администратор. Статус и пояснение к идее увидит автор, уведомление придёт в Telegram.</p><form id="postForm" class="admin-post-form"><input type="hidden" name="postId" id="postId"><div class="field"><label for="postType">Категория</label><select id="postType" name="type"><option value="news">Новость</option><option value="event">Мероприятие</option></select></div><div class="field"><label for="postTitle">Заголовок</label><input id="postTitle" name="title" maxlength="100" required></div><div class="field"><label for="postCategory">Тема</label><input id="postCategory" name="category" maxlength="40" placeholder="Например, Школьная жизнь"></div><div class="field"><label for="postDate">Дата</label><input id="postDate" type="date"></div><div class="field"><label for="postTime">Время</label><input id="postTime" type="time"></div><p id="dateHint" class="admin-description" style="margin:6px 0 0;font-size:11px"></p><div id="eventFields" hidden><div class="field"><label for="postLocation">Место</label><input id="postLocation" maxlength="120" placeholder="Например, актовый зал"></div></div><div class="field"><label for="postImage">Фото (необязательно)</label><input id="postImage" type="file" accept="image/jpeg,image/png,image/webp"><div id="imagePreview" class="image-preview" hidden><img alt="Предпросмотр фото"><button class="button-light" id="removeImage" type="button">Удалить фото</button></div></div><div class="field"><label for="postDescription">Текст</label><textarea id="postDescription" name="description" maxlength="2000" required></textarea></div><button class="pill" type="submit">Опубликовать</button><button class="button-light cancel-post-edit" type="button" hidden>Отменить редактирование</button></form><p id="adminMessage" class="admin-message" role="status"></p><h3 class="subheading">Мои публикации</h3><div id="adminPostList" class="admin-post-list"></div><h3 class="subheading">Проблемы учеников (анонимно)</h3><button class="button-light danger-link" id="clearProblems" type="button">Удалить все проблемы</button><div id="adminProblemList" class="admin-post-list"></div><div class="section-head"><div><h2>Классы</h2></div></div><p class="admin-description">Добавляй произвольные названия, например «10Oxford» или «8Б-Экология».</p><div id="classAdmin"><form id="addClassForm" class="add-class-form"><input id="newClassName" maxlength="30" placeholder="Например, 10Oxford" required><button class="pill" type="submit">＋ Добавить класс</button></form><div id="classList" class="class-list"></div></div></div>
     </section>
     <section class="wrap section" aria-label="Возможности портала"><div class="feature-grid"><article class="feature-card"><div class="feature-icon">▤</div><h3>Инициативы</h3><p>Предлагай идеи — от школьного праздника до новых пространств.</p></article><article class="feature-card"><div class="feature-icon">☑</div><h3>Голосование</h3><p>Поддерживай идеи, которые помогут сделать школу лучше.</p></article><article class="feature-card"><div class="feature-icon">⚑</div><h3>Новости и события</h3><p>Следи за событиями, объявлениями и жизнью школы.</p></article></div></section>
     <style>
@@ -57,6 +58,10 @@
       .initiative-filters{font-size:14px}.field input,.field textarea,.field select,.initiative-filters input,.initiative-filters select,.moderation-controls select,.moderation-controls textarea{font-size:16px!important}
       @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
       @media(max-width:460px){.hero-art{height:300px}.feature-grid{grid-template-columns:1fr}.feature-card:last-child{grid-column:auto}.initiative-filters{grid-template-columns:1fr}.initiative-filters input{grid-column:auto}.admin-post-row{align-items:start;flex-direction:column}.admin-row-actions{align-self:flex-end}}
+      .lang-switch{display:inline-flex;background:#f2f1fa;border-radius:10px;padding:3px;gap:2px}.lang-switch button{border:0;background:transparent;border-radius:8px;padding:7px 9px;font-size:11px;font-weight:700;color:#66668a;min-height:32px}.lang-switch button[aria-pressed="true"]{background:#fff;color:#5548c6;box-shadow:0 2px 8px #30296f12}
+      .problem-form{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;display:grid;gap:12px;margin-bottom:18px}.problem-form label{display:grid;gap:6px;font-size:12px;font-weight:700}.problem-form textarea{border:1px solid var(--line);border-radius:11px;padding:11px 12px;font:inherit;font-size:16px;min-height:90px;resize:vertical;font-weight:400}.problem-form textarea:focus{border-color:#8173e8;outline:none}.problem-form .pill{justify-self:start}.problem-note{font-size:12px;color:var(--muted);margin:0}
+      .problem-list{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.problem-card{background:#0d0d10;color:#f1f0f7;border:1px solid #23232b;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px;min-height:150px}.problem-text{margin:0;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.problem-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#9a9ab0}.problem-support{background:transparent;border:1px solid #3a3a46;color:#f1f0f7;border-radius:99px;padding:8px 12px;min-height:40px;font-weight:700;font-size:12px;white-space:nowrap}.problem-support[aria-pressed="true"]{background:#f1f0f7;color:#0d0d10}
+      .problems-root{margin-top:8px}.image-preview{display:grid;gap:8px;justify-items:start;margin-top:10px}.image-preview img{width:100%;max-width:280px;border-radius:12px;border:1px solid var(--line)}.cover-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     </style>
     <section class="wrap section" id="news"><div class="section-head"><div><span class="eyebrow">Что происходит</span><h2>Новости школы</h2></div><a class="text-link" href="#news">Все новости&nbsp; ↗</a></div>
       <div class="news-grid">
@@ -73,6 +78,7 @@
         <article class="idea-card"><div class="idea-icon">🧩</div><h3>Клубы по интересам</h3><p>Открыть встречи для тех, кто любит шахматы, настольные игры и головоломки.</p><div class="idea-foot"><span class="status">В планах</span><button class="vote" data-vote="clubs">♡ <span data-count="clubs">31</span></button></div></article>
       </div>
     </div></section>
+    <section class="wrap section" id="problems"><div class="section-head"><div><span class="eyebrow">Анонимно</span><h2>Проблемы школы</h2></div></div><p class="admin-description">Расскажи о проблеме без имени. Твоё имя нигде не сохраняется, автор не виден ни ученикам, ни администрации.</p><div class="problems-root" data-problems-root></div></section>
     <section class="wrap proposal" id="about"><span class="eyebrow">Твоя очередь</span><h2>Есть идея? Давай обсудим.</h2><p>Большие перемены начинаются с одного предложения.</p><button class="pill" data-open-modal>Предложить инициативу&nbsp; ↗</button></section>
   </main>
   <footer class="footer"><div class="wrap footer-inner"><span>© 2026 SodiqSchool</span><span>Школьные инициативы — вместе 💜</span></div></footer>
@@ -80,10 +86,303 @@
   <div class="modal-backdrop" id="registrationBackdrop" role="dialog" aria-modal="true" aria-labelledby="registrationTitle"><form class="modal" id="registrationForm"><button class="close registration-close" type="button" aria-label="Закрыть">×</button><span class="eyebrow">Аккаунт ученика</span><div class="auth-switch"><button type="button" class="auth-mode active" data-auth-mode="register">Регистрация</button><button type="button" class="auth-mode" data-auth-mode="login">Войти</button></div><h2 id="registrationTitle">Регистрация в SodiqSchool</h2><p id="registrationDescription">Введи имя, фамилию и класс. Затем отправь код боту <a href="https://t.me/SodiqLead_bot" target="_blank" rel="noreferrer">@SodiqLead_bot</a> для подтверждения.</p><div id="registrationFields"><div class="field"><label for="firstName">Имя</label><input id="firstName" name="firstName" required maxlength="50" autocomplete="given-name"></div><div class="field"><label for="lastName">Фамилия</label><input id="lastName" name="lastName" required maxlength="50" autocomplete="family-name"></div><div class="field"><label for="schoolClass">Класс</label><select id="schoolClass" name="schoolClass" required><option value="">Загружаем классы…</option></select></div><button class="pill" type="submit">Получить код подтверждения</button></div><div id="verificationStep" hidden><p class="code-intro">Твой код привязки:</p><div class="verification-code" id="verificationCode"></div><button class="button-light copy-code-button" id="copyVerificationCode" type="button">▢ Скопировать код</button><p>Напиши боту <a href="https://t.me/SodiqLead_bot" target="_blank" rel="noreferrer">@SodiqLead_bot</a>, нажми «Запустить» и отправь только скопированный код.</p><p id="verificationStatus" class="verification-status">Ожидаем подтверждение от бота…</p></div></form></div>
   <div class="toast" id="toast" role="status"></div>
   <script>
+    const UZ={
+      "Перейти к содержимому":"Asosiy qismga o‘tish",
+      "Школьное самоуправление":"Maktab o‘zini o‘zi boshqarishi",
+      "Новости":"Yangiliklar",
+      "Инициативы":"Tashabbuslar",
+      "Проблемы":"Muammolar",
+      "О проекте":"Loyiha haqida",
+      "Язык":"Til",
+      "Войти":"Kirish",
+      "Регистрация":"Ro‘yxatdan o‘tish",
+      "Выйти":"Chiqish",
+      "Голос учеников —":"O‘quvchilar ovozi —",
+      "развитие школы.":"maktab rivoji.",
+      "Sodiq School — частная школа Ташкента для учеников 5–11 классов. Здесь изучают математику, английский и историю, развивают критическое мышление и готовятся к поступлению в ведущие университеты. SodiqSchool — пространство, где ученики могут предлагать идеи и вместе менять школьную жизнь.":"Sodiq School — Toshkentdagi 5–11-sinf o‘quvchilari uchun xususiy maktab. Bu yerda matematika, ingliz tili va tarix o‘rganiladi, tanqidiy fikrlash rivojlantiriladi va yetakchi universitetlarga tayyorlanish amalga oshiriladi. SodiqSchool — o‘quvchilar g‘oya taklif qilib, maktab hayotini birgalikda o‘zgartiradigan maydon.",
+      "Создать аккаунт":"Hisob yaratish",
+      "Читать новости":"Yangiliklarni o‘qish",
+      "Школа начинается с твоей идеи":"Maktab sizning g‘oyangizdan boshlanadi",
+      "Портал школьных инициатив":"Maktab tashabbuslari portali",
+      "Голосование":"Ovoz berish",
+      "Новости и события":"Yangiliklar va tadbirlar",
+      "Внутренний портал":"Ichki portal",
+      "Привет,":"Salom,",
+      "Голос учеников":"O‘quvchilar ovozi",
+      "Предложить идею":"G‘oya taklif qilish",
+      "＋ Предложить идею":"＋ G‘oya taklif qilish",
+      "Поиск идей…":"G‘oyalarni qidirish…",
+      "Найти инициативу…":"Tashabbusni qidirish…",
+      "Поиск инициатив":"Tashabbuslarni qidirish",
+      "Фильтр по категории":"Kategoriya bo‘yicha filtr",
+      "Фильтр по классу":"Sinf bo‘yicha filtr",
+      "Фильтр по статусу":"Holat bo‘yicha filtr",
+      "Фильтр по дате":"Sana bo‘yicha filtr",
+      "Сортировка":"Saralash",
+      "Все категории":"Barcha kategoriyalar",
+      "Все классы":"Barcha sinflar",
+      "Все статусы":"Barcha holatlar",
+      "За всё время":"Butun vaqt",
+      "7 дней":"7 kun",
+      "14 дней":"14 kun",
+      "30 дней":"30 kun",
+      "Сначала новые":"Avval yangilari",
+      "Сначала популярные":"Avval mashhurlari",
+      "Популярные идеи · голосование 14 дней":"Mashhur g‘oyalar · 14 kun ovoz berish",
+      "Все инициативы":"Barcha tashabbuslar",
+      "Что происходит":"Nima bo‘layapti",
+      "Новости школы":"Maktab yangiliklari",
+      "Календарь школы":"Maktab taqvimi",
+      "Мероприятия":"Tadbirlar",
+      "Активность школы":"Maktab faolligi",
+      "Рейтинг классов":"Sinflar reytingi",
+      "Рейтинг":"Reyting",
+      "За последние 14 дней":"So‘nggi 14 kun uchun",
+      "↻ Обновить":"↻ Yangilash",
+      "Управление порталом":"Portalni boshqarish",
+      "Админ-панель":"Admin paneli",
+      "Модерация инициатив":"Tashabbuslarni nazorat qilish",
+      "Создать публикацию":"E’lon yaratish",
+      "Новости и мероприятия публикует только администратор. Статус и пояснение к идее увидит автор, уведомление придёт в Telegram.":"Yangiliklar va tadbirlarni faqat administrator e’lon qiladi. Holat va izohni muallif ko‘radi, Telegram orqali xabar yuboriladi.",
+      "Категория":"Kategoriya",
+      "Новость":"Yangilik",
+      "Мероприятие":"Tadbir",
+      "Заголовок":"Sarlavha",
+      "Тема":"Mavzu",
+      "Например, Школьная жизнь":"Masalan, Maktab hayoti",
+      "Дата":"Sana",
+      "Время":"Vaqt",
+      "Место":"Joy",
+      "Например, актовый зал":"Masalan, aktlar zali",
+      "Текст":"Matn",
+      "Опубликовать":"E’lon qilish",
+      "Отменить редактирование":"Tahrirlashni bekor qilish",
+      "Сохранить изменения":"O‘zgarishlarni saqlash",
+      "Мои публикации":"Mening e’lonlarim",
+      "Классы":"Sinflar",
+      "Добавляй произвольные названия, например «10Oxford» или «8Б-Экология».":"Istalgan nom qo‘shing, masalan «10Oxford» yoki «8B-Ekologiya».",
+      "＋ Добавить класс":"＋ Sinf qo‘shish",
+      "Например, 10Oxford":"Masalan, 10Oxford",
+      "Все новости ↗":"Barcha yangiliklar ↗",
+      "Меняем вместе":"Birgalikda o‘zgartiramiz",
+      "Инициативы учеников":"O‘quvchilar tashabbuslari",
+      "Поддержи то, что тебе важно, или предложи свою идею.":"Sizga muhim bo‘lganini qo‘llab-quvvatlang yoki o‘z g‘oyangizni taklif qiling.",
+      "＋ Новая идея":"＋ Yangi g‘oya",
+      "Предлагай идеи — от школьного праздника до новых пространств.":"G‘oyalar taklif qiling — maktab bayramidan yangi maydonlargacha.",
+      "Поддерживай идеи, которые помогут сделать школу лучше.":"Maktabni yaxshilashga yordam beradigan g‘oyalarni qo‘llab-quvvatlang.",
+      "Следи за событиями, объявлениями и жизнью школы.":"Tadbirlar, e’lonlar va maktab hayotini kuzating.",
+      "Есть идея? Давай обсудим.":"G‘oyangiz bormi? Muhokama qilaylik.",
+      "Большие перемены начинаются с одного предложения.":"Katta o‘zgarishlar bitta taklifdan boshlanadi.",
+      "Предложить инициативу ↗":"Tashabbus taklif qilish ↗",
+      "Твой голос важен":"Sizning ovozingiz muhim",
+      "Поделись идеей":"G‘oyangiz bilan bo‘lishing",
+      "Расскажи, что можно улучшить в школе. Предложение появится в списке инициатив.":"Maktabda nimani yaxshilash mumkinligini ayting. Taklif tashabbuslar ro‘yxatida chiqadi.",
+      "Название идеи":"G‘oya nomi",
+      "Например, настольные игры на переменах":"Masalan, tanaffusda stol o‘yinlari",
+      "Коротко опиши идею":"G‘oyani qisqacha tavsiflang",
+      "Что именно ты предлагаешь?":"Aynan nimani taklif qilyapsiz?",
+      "Раздел":"Bo‘lim",
+      "Школьная жизнь":"Maktab hayoti",
+      "События":"Tadbirlar",
+      "Пространство":"Maydon",
+      "Другое":"Boshqa",
+      "Отправить идею ↗":"G‘oyani yuborish ↗",
+      "Аккаунт ученика":"O‘quvchi hisobi",
+      "Регистрация в SodiqSchool":"SodiqSchool’da ro‘yxatdan o‘tish",
+      "Вход в SodiqSchool":"SodiqSchool’ga kirish",
+      "Введи имя, фамилию и класс. Затем отправь код боту":"Ism, familiya va sinfingizni kiriting. So‘ng kodni botga yuboring:",
+      "Введи данные аккаунта, затем отправь код боту":"Hisob ma’lumotlarini kiriting, so‘ng kodni botga yuboring:",
+      "для подтверждения.":"tasdiqlash uchun.",
+      "Внутренний портал откроется после подтверждения.":"Tasdiqlangandan keyin ichki portal ochiladi.",
+      "Получить код подтверждения":"Tasdiqlash kodini olish",
+      "Получить код для входа":"Kirish uchun kod olish",
+      "Имя":"Ism",
+      "Фамилия":"Familiya",
+      "Класс":"Sinf",
+      "Выбери класс":"Sinfni tanlang",
+      "Загружаем классы…":"Sinflar yuklanmoqda…",
+      "Не удалось загрузить классы":"Sinflarni yuklab bo‘lmadi",
+      "Создаём код…":"Kod yaratilmoqda…",
+      "Твой код привязки:":"Bog‘lash kodingiz:",
+      "▢ Скопировать код":"▢ Kodni nusxalash",
+      "✓ Код скопирован":"✓ Kod nusxalandi",
+      "Скопирован только код подтверждения.":"Faqat tasdiqlash kodi nusxalandi.",
+      "Не удалось скопировать. Выдели только код и скопируй вручную.":"Nusxalab bo‘lmadi. Faqat kodni belgilab, qo‘lda nusxalang.",
+      "Напиши боту":"Botga yozing",
+      ", нажми «Запустить» и отправь только скопированный код.":", «Boshlash» tugmasini bosing va faqat nusxalangan kodni yuboring.",
+      "Ожидаем подтверждение от бота…":"Bot tasdig‘ini kutyapmiz…",
+      "Подтверждено! Открываем личный кабинет…":"Tasdiqlandi! Shaxsiy kabinet ochilmoqda…",
+      "Код истёк. Закрой окно и начни заново.":"Kod muddati tugadi. Oynani yopib, qaytadan boshlang.",
+      "Не удалось проверить статус. Убедись, что сервер работает.":"Holatni tekshirib bo‘lmadi. Server ishlayotganini tekshiring.",
+      "Добро пожаловать":"Xush kelibsiz",
+      "Закрыть":"Yopish",
+      "Школьные инициативы — вместе 💜":"Maktab tashabbuslari — birga 💜",
+      "Инициатива удалена.":"Tashabbus o‘chirildi.",
+      "Не удалось удалить инициативу.":"Tashabbusni o‘chirib bo‘lmadi.",
+      "Удалить свою инициативу? Это действие нельзя отменить.":"Tashabbusingizni o‘chirasizmi? Bu amalni qaytarib bo‘lmaydi.",
+      "Изменения сохранены.":"O‘zgarishlar saqlandi.",
+      "Инициатива отправлена на рассмотрение!":"Tashabbus ko‘rib chiqishga yuborildi!",
+      "Не удалось отправить инициативу.":"Tashabbusni yuborib bo‘lmadi.",
+      "Сначала войди в аккаунт ученика.":"Avval o‘quvchi hisobiga kiring.",
+      "Войди, чтобы записаться на мероприятие.":"Tadbirga yozilish uchun kiring.",
+      "Войди, чтобы поддержать идею.":"G‘oyani qo‘llab-quvvatlash uchun kiring.",
+      "Не удалось записаться.":"Yozilib bo‘lmadi.",
+      "Не удалось поставить лайк.":"Ovoz berib bo‘lmadi.",
+      "Публикация добавлена.":"E’lon qo‘shildi.",
+      "Не удалось опубликовать.":"E’lonni joylab bo‘lmadi.",
+      "Укажи дату мероприятия.":"Tadbir sanasini kiriting.",
+      "Некорректная дата или время.":"Sana yoki vaqt noto‘g‘ri.",
+      "Статус сохранён; автор уведомлён в Telegram.":"Holat saqlandi; muallifga Telegram orqali xabar yuborildi.",
+      "Не удалось сохранить статус.":"Holatni saqlab bo‘lmadi.",
+      "Удалить публикацию?":"E’lonni o‘chirasizmi?",
+      "Не удалось удалить публикацию.":"E’lonni o‘chirib bo‘lmadi.",
+      "Удалить эту инициативу?":"Bu tashabbusni o‘chirasizmi?",
+      "Админ-доступ подтверждён через Telegram.":"Admin kirishi Telegram orqali tasdiqlandi.",
+      "Не удалось загрузить классы.":"Sinflarni yuklab bo‘lmadi.",
+      "Класс добавлен и доступен при регистрации.":"Sinf qo‘shildi va ro‘yxatdan o‘tishda mavjud.",
+      "Не удалось загрузить рейтинг.":"Reytingni yuklab bo‘lmadi.",
+      "Пока нет классов для рейтинга.":"Reyting uchun hali sinflar yo‘q.",
+      "Загружаем рейтинг…":"Reyting yuklanmoqda…",
+      "активных учеников":"faol o‘quvchi",
+      "инициатив":"tashabbus",
+      "лайков":"ovoz",
+      "дней":"kun",
+      "За последние":"So‘nggi",
+      "обновлено":"yangilangan",
+      "Ученики":"O‘quvchilar",
+      "Лайки":"Ovozlar",
+      "Уже в работе":"Ishda",
+      "Реализовано":"Amalga oshirildi",
+      "В работе":"Ishda",
+      "На рассмотрении":"Ko‘rib chiqilmoqda",
+      "Записались на события":"Tadbirlarga yozilganlar",
+      "Обсуждаем":"Muhokamada",
+      "Собираем мнения":"Fikr yig‘ilmoqda",
+      "В планах":"Rejada",
+      "Голосование завершено":"Ovoz berish yakunlandi",
+      "Голосование до":"Ovoz berish:",
+      "Ответ администрации:":"Administratsiya javobi:",
+      "Изменить":"Tahrirlash",
+      "Удалить":"O‘chirish",
+      "Поддержать инициативу":"Tashabbusni qo‘llab-quvvatlash",
+      "Место уточняется":"Joy aniqlanmoqda",
+      "Место не указано":"Joy ko‘rsatilmagan",
+      "✓ Я пойду":"✓ Men boraman",
+      "Я пойду":"Men boraman",
+      "Пока нет новостей.":"Hozircha yangiliklar yo‘q.",
+      "Пока нет мероприятий.":"Hozircha tadbirlar yo‘q.",
+      "Пока нет активных голосований.":"Hozircha faol ovoz berishlar yo‘q.",
+      "По этим фильтрам инициатив не найдено.":"Bu filtrlar bo‘yicha tashabbuslar topilmadi.",
+      "Публикаций пока нет.":"E’lonlar hali yo‘q.",
+      "Пока нет инициатив для проверки.":"Tekshirish uchun tashabbuslar yo‘q.",
+      "Сохранить статус":"Holatni saqlash",
+      "Пояснение или ответ ученику":"Izoh yoki o‘quvchiga javob",
+      "Удалить все инициативы":"Barcha tashabbuslarni o‘chirish",
+      "Удалить все проблемы":"Barcha muammolarni o‘chirish",
+      "Чтобы удалить ВСЕ инициативы, напиши УДАЛИТЬ.":"Barcha tashabbuslar o‘chiriladi. Tasdiqlash uchun УДАЛИТЬ deb yozing.",
+      "Чтобы удалить ВСЕ проблемы, напиши УДАЛИТЬ.":"Barcha muammolar o‘chiriladi. Tasdiqlash uchun УДАЛИТЬ deb yozing.",
+      "Удаление отменено.":"O‘chirish bekor qilindi.",
+      "Удалено:":"O‘chirildi:",
+      "Не удалось удалить.":"O‘chirib bo‘lmadi.",
+      "Фото (необязательно)":"Rasm (ixtiyoriy)",
+      "Удалить фото":"Rasmni o‘chirish",
+      "Предпросмотр фото":"Rasm ko‘rinishi",
+      "Проблемы учеников (анонимно)":"O‘quvchilar muammolari (anonim)",
+      "Удалить эту проблему?":"Bu muammoni o‘chirasizmi?",
+      "Не удалось обработать фото.":"Rasmni qayta ishlab bo‘lmadi.",
+      "Фото слишком большое даже после сжатия. Возьми фото поменьше.":"Rasm siqilgandan keyin ham katta. Kichikroq rasm tanlang.",
+      "Анонимно":"Anonim",
+      "Проблемы школы":"Maktab muammolari",
+      "Расскажи о проблеме без имени. Твоё имя нигде не сохраняется, автор не виден ни ученикам, ни администрации.":"Muammo haqida ismsiz yozing. Ismingiz hech qayerda saqlanmaydi, muallif na o‘quvchilarga, na administratsiyaga ko‘rinmaydi.",
+      "Пиши, что мешает учёбе и жизни школы. Имя не сохраняется, так что можно говорить прямо.":"O‘qish va maktab hayotiga nima to‘sqinlik qilayotganini yozing. Ism saqlanmaydi, shuning uchun ochiq gapirishingiz mumkin.",
+      "Твоя проблема":"Sizning muammoingiz",
+      "Опиши, что не так в школе…":"Maktabda nima noto‘g‘ri ekanini yozing…",
+      "Ник и имя не сохраняются. Автор не виден ни ученикам, ни администрации.":"Ism va nik saqlanmaydi. Muallif na o‘quvchilarga, na administratsiyaga ko‘rinmaydi.",
+      "Отправить анонимно":"Anonim yuborish",
+      "Я тоже":"Men ham",
+      "Пока нет проблем.":"Hozircha muammolar yo‘q.",
+      "Проблема отправлена анонимно.":"Muammo anonim yuborildi.",
+      "Не удалось отправить.":"Yuborib bo‘lmadi.",
+      "Не удалось загрузить проблемы.":"Muammolarni yuklab bo‘lmadi.",
+      "Не удалось поддержать.":"Qo‘llab-quvvatlab bo‘lmadi.",
+      "Слишком много сообщений. Попробуй через несколько минут.":"Juda ko‘p xabar. Bir necha daqiqadan keyin urinib ko‘ring.",
+      "Опиши проблему в 5–1000 символах.":"Muammoni 5–1000 belgida yozing.",
+      "Проблема не найдена.":"Muammo topilmadi.",
+      "Слишком часто. Подожди минуту.":"Juda tez. Bir daqiqa kuting.",
+      "Некорректный токен.":"Noto‘g‘ri token.",
+      "Войди в аккаунт.":"Hisobga kiring.",
+      "Инициатива не найдена.":"Tashabbus topilmadi.",
+      "Проверь название и описание инициативы.":"Tashabbus nomi va tavsifini tekshiring.",
+      "Мероприятие не найдено.":"Tadbir topilmadi.",
+      "Слишком много действий с событиями. Подожди минуту.":"Tadbirlar bilan juda ko‘p harakat. Bir daqiqa kuting.",
+      "Аккаунт не найден. Проверь данные или зарегистрируйся.":"Hisob topilmadi. Ma’lumotlarni tekshiring yoki ro‘yxatdan o‘ting.",
+      "Слишком много попыток. Попробуй позже.":"Juda ko‘p urinish. Keyinroq urinib ko‘ring.",
+      "Слишком много попыток входа. Попробуй через минуту.":"Juda ko‘p kirish urinishi. Bir daqiqadan keyin urinib ko‘ring.",
+      "Проверь имя, фамилию и выбери класс из списка.":"Ism, familiya va ro‘yxatdan sinfni tanlang.",
+      "Такой аккаунт уже зарегистрирован. Используй кнопку «Войти».":"Bunday hisob allaqachon bor. «Kirish» tugmasidan foydalaning.",
+      "Можно отправить не больше 5 инициатив в час.":"Soatiga 5 tadan ko‘p tashabbus yuborish mumkin emas.",
+      "Войди в аккаунт ученика, чтобы предложить инициативу.":"Tashabbus taklif qilish uchun o‘quvchi hisobiga kiring.",
+      "Срок голосования по этой инициативе завершён.":"Bu tashabbus bo‘yicha ovoz berish muddati tugagan.",
+      "Инициативу можно редактировать только пока она на рассмотрении.":"Tashabbusni faqat ko‘rib chiqish vaqtida tahrirlash mumkin.",
+      "Можно изменять только свои инициативы.":"Faqat o‘z tashabbuslaringizni o‘zgartirish mumkin.",
+      "Публикация не найдена.":"E’lon topilmadi.",
+      "Класс используется аккаунтами учеников, удалить его нельзя.":"Sinf o‘quvchi hisoblarida ishlatilmoqda, o‘chirib bo‘lmaydi.",
+      "Такой класс уже есть.":"Bunday sinf allaqachon bor.",
+      "Название класса: 1–30 букв, цифр, пробелов, дефиса или подчёркивания.":"Sinf nomi: 1–30 harf, raqam, bo‘shliq, chiziqcha yoki pastki chiziq.",
+      "Фото должно быть JPG, PNG или WebP до 1 МБ.":"Rasm JPG, PNG yoki WebP formatida, 1 MB gacha bo‘lishi kerak.",
+      "Слишком большой файл или текст.":"Fayl yoki matn juda katta.",
+      "Внутренняя ошибка сервера.":"Serverda ichki xatolik.",
+      "Для мероприятия укажи дату, время и место.":"Tadbir uchun sana, vaqt va joyni kiriting.",
+      "Проверь категорию, заголовок и текст публикации.":"Kategoriya, sarlavha va matnni tekshiring.",
+      "Проверь заголовок, текст и данные мероприятия.":"Sarlavha, matn va tadbir ma’lumotlarini tekshiring.",
+      "Проверь статус и пояснение (до 500 символов).":"Holat va izohni tekshiring (500 belgigacha).",
+      "Не удалось подключиться к серверу. Запусти npm start в папке sodiqlead-bot и обнови страницу.":"Serverga ulanib bo‘lmadi. sodiqlead-bot papkasida npm start ni ishga tushiring va sahifani yangilang.",
+      "Открой сайт через http://localhost:3000 — при запуске index.html напрямую API недоступно.":"Saytni http://localhost:3000 orqali oching — index.html ni to‘g‘ridan-to‘g‘ri ochsangiz API ishlamaydi.",
+      "Не удалось загрузить рейтинг.":"Reytingni yuklab bo‘lmadi."
+    };
+    let lang='ru';
+    try{lang=localStorage.getItem('sodiqschool-lang')==='uz'?'uz':'ru'}catch{}
+    const localeTag=()=>lang==='uz'?'uz-Latn-UZ':'ru-RU';
+    const hasKey=key=>Object.prototype.hasOwnProperty.call(UZ,key);
+    const norm=text=>String(text).replace(/\s+/g,' ').trim();
+    function tr(text){const key=norm(text);return lang==='uz'&&hasKey(key)?UZ[key]:String(text)}
+    const originalText=new WeakMap();
+    const originalAttrs=new WeakMap();
+    function swapText(node){
+      if(!originalText.has(node)){const value=node.nodeValue;if(!hasKey(norm(value)))return;originalText.set(node,value)}
+      const original=originalText.get(node);const core=norm(original);
+      const lead=original.match(/^\s*/)[0],trail=original.match(/\s*$/)[0];
+      node.nodeValue=lang==='uz'&&hasKey(core)?lead+UZ[core]+trail:original;
+    }
+    function translateStatic(){
+      const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+      const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+      nodes.forEach(node=>{if(!node.parentElement?.closest('script,style'))swapText(node)});
+      document.querySelectorAll('[placeholder],[aria-label]').forEach(element=>{
+        if(!originalAttrs.has(element))originalAttrs.set(element,{});
+        const store=originalAttrs.get(element);
+        for(const attribute of ['placeholder','aria-label']){
+          if(!element.hasAttribute(attribute))continue;
+          if(!(attribute in store))store[attribute]=element.getAttribute(attribute);
+          const core=norm(store[attribute]);
+          element.setAttribute(attribute,lang==='uz'&&hasKey(core)?UZ[core]:store[attribute]);
+        }
+      });
+    }
+    function setLanguage(next){
+      lang=next==='uz'?'uz':'ru';
+      try{localStorage.setItem('sodiqschool-lang',lang)}catch{}
+      document.documentElement.lang=lang;
+      document.querySelectorAll('[data-lang]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lang===lang)));
+      translateStatic();renderInitiatives();loadPortalContent();renderProblemRoots();
+      if(currentAccount?.isAdmin)renderAdminProblems();
+      if(!document.querySelector('#dashboardRating').hidden)loadRating();
+    }
+
     const backdrop=document.querySelector('#modalBackdrop');
     const toast=document.querySelector('#toast');
     let toastTimer;
-    function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
+    function showToast(message){message=tr(message);toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
     const registrationBackdrop=document.querySelector('#registrationBackdrop');
     let registrationPollTimer;
     let authMode='register';
@@ -100,24 +399,24 @@
       document.querySelector('#modalTitle').textContent='Изменить инициативу';form.querySelector('button[type="submit"]').textContent='Сохранить изменения';backdrop.classList.add('open');document.querySelector('#ideaTitle').focus();
     }
     async function deleteOwnIdea(id){
-      if(!confirm('Удалить свою инициативу? Это действие нельзя отменить.'))return;
+      if(!confirm(tr('Удалить свою инициативу? Это действие нельзя отменить.')))return;
       try{const response=await fetch(`/api/initiatives/${id}`,{method:'DELETE'});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadPortalContent();showToast('Инициатива удалена.')}
       catch(error){showToast(error.message||'Не удалось удалить инициативу.')}
     }
     function closeRegistration(){if(!registrationBackdrop.classList.contains('open'))return;registrationBackdrop.classList.remove('open');clearInterval(registrationPollTimer);lastFocus?.focus?.()}
     async function loadClassOptions(){
       const select=document.querySelector('#schoolClass');
-      try{const response=await fetch('/api/classes');const result=await response.json();select.replaceChildren(new Option('Выбери класс',''));result.classes.forEach(value=>select.add(new Option(value,value)))}
-      catch{select.replaceChildren(new Option('Не удалось загрузить классы',''))}
+      try{const response=await fetch('/api/classes');const result=await response.json();select.replaceChildren(new Option(tr('Выбери класс'),''));result.classes.forEach(value=>select.add(new Option(value,value)))}
+      catch{select.replaceChildren(new Option(tr('Не удалось загрузить классы'),''))}
     }
     function setAuthMode(mode){
       authMode=mode;clearInterval(registrationPollTimer);
       document.querySelectorAll('[data-auth-mode]').forEach(button=>button.classList.toggle('active',button.dataset.authMode===mode));
       const isLogin=mode==='login';
-      document.querySelector('#copyVerificationCode').textContent='▢ Скопировать код';
-      document.querySelector('#registrationTitle').textContent=isLogin?'Вход в SodiqSchool':'Регистрация в SodiqSchool';
-      document.querySelector('#registrationDescription').innerHTML=isLogin?'Введи данные аккаунта, затем отправь код боту <a href="https://t.me/SodiqLead_bot" target="_blank" rel="noreferrer">@SodiqLead_bot</a>. Внутренний портал откроется после подтверждения.':'Введи имя, фамилию и класс. Затем отправь код боту <a href="https://t.me/SodiqLead_bot" target="_blank" rel="noreferrer">@SodiqLead_bot</a> для подтверждения.';
-      authSubmit.textContent=isLogin?'Получить код для входа':'Получить код подтверждения';
+      document.querySelector('#copyVerificationCode').textContent=tr('▢ Скопировать код');
+      document.querySelector('#registrationTitle').textContent=tr(isLogin?'Вход в SodiqSchool':'Регистрация в SodiqSchool');
+      document.querySelector('#registrationDescription').innerHTML=isLogin?`${tr('Введи данные аккаунта, затем отправь код боту')} <a href="https://t.me/SodiqLead_bot" target="_blank" rel="noreferrer">@SodiqLead_bot</a>. ${tr('Внутренний портал откроется после подтверждения.')}`:`${tr('Введи имя, фамилию и класс. Затем отправь код боту')} <a href="https://t.me/SodiqLead_bot" target="_blank" rel="noreferrer">@SodiqLead_bot</a> ${tr('для подтверждения.')}`;
+      authSubmit.textContent=tr(isLogin?'Получить код для входа':'Получить код подтверждения');
       document.querySelector('#registrationFields').hidden=false;document.querySelector('#verificationStep').hidden=true;
       document.querySelector('#registrationForm').reset();loadClassOptions();
     }
@@ -133,7 +432,7 @@
         document.querySelector('#adminTab').hidden=!account.isAdmin;
         document.querySelector('#dashboardInitiatives [data-open-modal]').hidden=account.isAdmin;
         if(account.isAdmin){await loadAdminClasses();await loadAdminDashboard()}
-        await loadPortalContent();
+        await loadPortalContent();await loadProblems();
         closeRegistration();return true;
       }catch{return false}
     }
@@ -150,7 +449,7 @@
       try{
         if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(code);
         else{const temporary=document.createElement('textarea');temporary.value=code;temporary.setAttribute('readonly','');temporary.style.position='fixed';temporary.style.opacity='0';document.body.append(temporary);temporary.select();const copied=document.execCommand('copy');temporary.remove();if(!copied)throw new Error('Не удалось скопировать код.');}
-        copyButton.textContent='✓ Код скопирован';showToast('Скопирован только код подтверждения.');
+        copyButton.textContent=tr('✓ Код скопирован');showToast('Скопирован только код подтверждения.');
       }catch{showToast('Не удалось скопировать. Выдели только код и скопируй вручную.');}
     });
     backdrop.addEventListener('click',event=>{if(event.target===backdrop)closeModal()});
@@ -165,21 +464,21 @@
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
     });
     document.querySelector('#registrationForm').addEventListener('submit',async event=>{
-      event.preventDefault();authSubmit.disabled=true;authSubmit.textContent='Создаём код…';
+      event.preventDefault();authSubmit.disabled=true;authSubmit.textContent=tr('Создаём код…');
       const form=new FormData(event.currentTarget);const payload={firstName:form.get('firstName'),lastName:form.get('lastName'),schoolClass:form.get('schoolClass')};
       try{
         const response=await fetch(authMode==='login'?'/api/login':'/api/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
         const result=await response.json();if(!response.ok)throw new Error(result.error||'Не удалось создать код.');
         document.querySelector('#registrationFields').hidden=true;document.querySelector('#verificationStep').hidden=false;document.querySelector('#verificationCode').textContent=result.code;
-        document.querySelector('#verificationStatus').textContent='Ожидаем подтверждение от бота…';
+        document.querySelector('#verificationStatus').textContent=tr('Ожидаем подтверждение от бота…');
         const code=result.code;registrationPollTimer=setInterval(async()=>{
           try{
             const statusResponse=await fetch(`/api/link-status?code=${encodeURIComponent(code)}`);const status=await statusResponse.json();
-            if(status.confirmed){clearInterval(registrationPollTimer);document.querySelector('#verificationStatus').textContent='Подтверждено! Открываем личный кабинет…';await showDashboard();showToast(`Добро пожаловать, ${status.firstName}!`)}
-            else if(Date.now()>=result.expiresAt){clearInterval(registrationPollTimer);document.querySelector('#verificationStatus').textContent='Код истёк. Закрой окно и начни заново.'}
-          }catch{document.querySelector('#verificationStatus').textContent='Не удалось проверить статус. Убедись, что сервер работает.'}
+            if(status.confirmed){clearInterval(registrationPollTimer);document.querySelector('#verificationStatus').textContent=tr('Подтверждено! Открываем личный кабинет…');await showDashboard();showToast(`${tr('Добро пожаловать')}, ${status.firstName}!`)}
+            else if(Date.now()>=result.expiresAt){clearInterval(registrationPollTimer);document.querySelector('#verificationStatus').textContent=tr('Код истёк. Закрой окно и начни заново.')}
+          }catch{document.querySelector('#verificationStatus').textContent=tr('Не удалось проверить статус. Убедись, что сервер работает.')}
         },2000);
-      }catch(error){showToast(error.message)}finally{authSubmit.disabled=false;authSubmit.textContent=authMode==='login'?'Получить код для входа':'Получить код подтверждения'}
+      }catch(error){showToast(error.message)}finally{authSubmit.disabled=false;authSubmit.textContent=tr(authMode==='login'?'Получить код для входа':'Получить код подтверждения')}
     });
     document.querySelectorAll('[data-dashboard-view]').forEach(button=>button.addEventListener('click',()=>{
       document.querySelectorAll('[data-dashboard-view]').forEach(tab=>tab.classList.toggle('active',tab===button));
@@ -191,13 +490,13 @@
     function makePostCard(post){
       const card=document.createElement('article');card.className='news-card';
       const cover=document.createElement('div');cover.className=`news-cover ${post.type==='event'?'cover-two':'cover-one'}`;
-      const emoji=document.createElement('span');emoji.className='cover-emoji';emoji.textContent=post.type==='event'?'📅':'📣';cover.append(emoji);
+      const emoji=document.createElement('span');emoji.className='cover-emoji';emoji.textContent=post.type==='event'?'📅':'📣';cover.append(emoji);if(post.image){const photo=document.createElement('img');photo.src=post.image;photo.alt='';photo.loading='lazy';photo.className='cover-photo';cover.replaceChildren(photo)}
       const content=document.createElement('div');content.className='news-content';
-      const meta=document.createElement('div');meta.className='meta';const category=document.createElement('b');category.textContent=post.category;const date=document.createElement('span');date.textContent=new Date(post.scheduledAt||post.createdAt).toLocaleString('ru-RU',{dateStyle:'medium',...(post.scheduledAt?{timeStyle:'short'}:{})});meta.append(category,document.createTextNode(' • '),date);
+      const meta=document.createElement('div');meta.className='meta';const category=document.createElement('b');category.textContent=post.category;const date=document.createElement('span');date.textContent=new Date(post.scheduledAt||post.createdAt).toLocaleString(localeTag(),{dateStyle:'medium',...(post.scheduledAt?{timeStyle:'short'}:{})});meta.append(category,document.createTextNode(' • '),date);
       const title=document.createElement('h3');title.textContent=post.title;const description=document.createElement('p');description.textContent=post.description;content.append(meta,title,description);
       if(post.type==='event'){
-        const location=document.createElement('p');location.className='event-location';location.textContent=`📍 ${post.location||'Место уточняется'}`;content.append(location);
-        const rsvp=document.createElement('button');rsvp.type='button';rsvp.className=`button-light event-rsvp${post.going?' going':''}`;rsvp.textContent=`${post.going?'✓ Я пойду':'Я пойду'} · ${post.goingCount||0}`;
+        const location=document.createElement('p');location.className='event-location';location.textContent=`📍 ${post.location||tr('Место уточняется')}`;content.append(location);
+        const rsvp=document.createElement('button');rsvp.type='button';rsvp.className=`button-light event-rsvp${post.going?' going':''}`;rsvp.textContent=`${tr(post.going?'✓ Я пойду':'Я пойду')} · ${post.goingCount||0}`;
         rsvp.addEventListener('click',async()=>{try{const response=await fetch(`/api/events/${post.id}/rsvp`,{method:'POST'});const result=await response.json();if(response.status===401){openAuth('login');showToast('Войди, чтобы записаться на мероприятие.');return}if(!response.ok)throw new Error(result.error);post.going=result.going;post.goingCount=result.goingCount;await loadPortalContent()}catch(error){showToast(error.message||'Не удалось записаться.')}});
         content.append(rsvp);
       }
@@ -208,20 +507,20 @@
       const icon=document.createElement('div');icon.className='idea-icon';icon.textContent='✨';
       const title=document.createElement('h3');title.textContent=idea.title;
       const description=document.createElement('p');description.textContent=idea.description;
-      const byline=document.createElement('p');byline.className='idea-byline';byline.textContent=`${idea.category} · ${idea.author} (${idea.schoolClass}) · ${new Date(idea.createdAt).toLocaleDateString('ru-RU')}`;
-      const deadline=document.createElement('p');deadline.className='idea-deadline';deadline.textContent=Date.now()>idea.votingClosesAt?'Голосование завершено':`Голосование до ${new Date(idea.votingClosesAt).toLocaleDateString('ru-RU')}`;
-      const foot=document.createElement('div');foot.className='idea-foot';const status=document.createElement('span');status.className='status';status.textContent=idea.status;
-      const vote=document.createElement('button');vote.type='button';vote.className=`vote${idea.liked?' voted':''}`;vote.textContent=`${idea.liked?'♥':'♡'} ${idea.likeCount}`;vote.disabled=Date.now()>idea.votingClosesAt;vote.setAttribute('aria-label','Поддержать инициативу');
+      const byline=document.createElement('p');byline.className='idea-byline';byline.textContent=`${idea.category} · ${idea.author} (${idea.schoolClass}) · ${new Date(idea.createdAt).toLocaleDateString(localeTag())}`;
+      const deadline=document.createElement('p');deadline.className='idea-deadline';deadline.textContent=Date.now()>idea.votingClosesAt?tr('Голосование завершено'):`${tr('Голосование до')} ${new Date(idea.votingClosesAt).toLocaleDateString(localeTag())}`;
+      const foot=document.createElement('div');foot.className='idea-foot';const status=document.createElement('span');status.className='status';status.textContent=tr(idea.status);
+      const vote=document.createElement('button');vote.type='button';vote.className=`vote${idea.liked?' voted':''}`;vote.textContent=`${idea.liked?'♥':'♡'} ${idea.likeCount}`;vote.disabled=Date.now()>idea.votingClosesAt;vote.setAttribute('aria-label',tr('Поддержать инициативу'));
       vote.addEventListener('click',async()=>{try{const response=await fetch(`/api/initiatives/${idea.id}/like`,{method:'POST'});const result=await response.json();if(response.status===401){showToast('Войди, чтобы поддержать идею.');openAuth('login');return}if(!response.ok)throw new Error(result.error);idea.liked=result.liked;idea.likeCount=result.likeCount;await loadPortalContent()}catch(error){showToast(error.message||'Не удалось поставить лайк.')}});
       foot.append(status,vote);card.append(icon,title,description,byline);
-      if(idea.adminNote){const note=document.createElement('p');note.className='admin-note';note.textContent=`Ответ администрации: ${idea.adminNote}`;card.append(note)}
+      if(idea.adminNote){const note=document.createElement('p');note.className='admin-note';note.textContent=`${tr('Ответ администрации:')} ${idea.adminNote}`;card.append(note)}
       card.append(deadline);
-      if(idea.isOwner){const actions=document.createElement('div');actions.className='idea-owner-actions';if(idea.status==='На рассмотрении'){const edit=document.createElement('button');edit.type='button';edit.className='text-link';edit.textContent='Изменить';edit.addEventListener('click',()=>openIdeaEditor(idea));actions.append(edit)}const remove=document.createElement('button');remove.type='button';remove.className='text-link danger-link';remove.textContent='Удалить';remove.addEventListener('click',()=>deleteOwnIdea(idea.id));actions.append(remove);card.append(actions)}
+      if(idea.isOwner){const actions=document.createElement('div');actions.className='idea-owner-actions';if(idea.status==='На рассмотрении'){const edit=document.createElement('button');edit.type='button';edit.className='text-link';edit.textContent=tr('Изменить');edit.addEventListener('click',()=>openIdeaEditor(idea));actions.append(edit)}const remove=document.createElement('button');remove.type='button';remove.className='text-link danger-link';remove.textContent=tr('Удалить');remove.addEventListener('click',()=>deleteOwnIdea(idea.id));actions.append(remove);card.append(actions)}
       card.append(foot);return card;
     }
-    function fillGrid(selector,items,createCard,label){const grid=document.querySelector(selector);grid.replaceChildren();if(!items.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=label;grid.append(empty);return}items.forEach(item=>grid.append(createCard(item)))}
+    function fillGrid(selector,items,createCard,label){const grid=document.querySelector(selector);grid.replaceChildren();if(!items.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=tr(label);grid.append(empty);return}items.forEach(item=>grid.append(createCard(item)))}
     function setFilterOptions(group,selector,values,placeholder){
-      const select=group.querySelector(selector);const previous=select.value;select.replaceChildren(new Option(placeholder,''));values.forEach(value=>select.add(new Option(value,value)));select.value=values.includes(previous)?previous:'';
+      const select=group.querySelector(selector);const previous=select.value;select.replaceChildren(new Option(tr(placeholder),''));values.forEach(value=>select.add(new Option(tr(value),value)));select.value=values.includes(previous)?previous:'';
     }
     function renderInitiatives(){
       document.querySelectorAll('[data-initiative-filter]').forEach(group=>{
@@ -246,7 +545,7 @@
         fillGrid('.dashboard-news',news,makePostCard,'Пока нет новостей.');fillGrid('.dashboard-events',events,makePostCard,'Пока нет мероприятий.');
         if(currentAccount?.isAdmin){renderModerationList();renderAdminPosts();}
       }catch(error){
-        const message=location.protocol==='file:'?'Открой сайт через http://localhost:3000 — при запуске index.html напрямую API недоступно.':'Не удалось подключиться к серверу. Запусти npm start в папке sodiqlead-bot и обнови страницу.';
+        const message=tr(location.protocol==='file:'?'Открой сайт через http://localhost:3000 — при запуске index.html напрямую API недоступно.':'Не удалось подключиться к серверу. Запусти npm start в папке sodiqlead-bot и обнови страницу.');
         for(const selector of ['#ideaGrid','.dashboard-ideas','#news .news-grid','.dashboard-news','.dashboard-events']){const grid=document.querySelector(selector);if(grid){const note=document.createElement('p');note.className='empty-content error';note.textContent=message;grid.replaceChildren(note)}}
         showToast(message);
       }
@@ -256,46 +555,46 @@
       const list=document.querySelector('#ratingList');list.replaceChildren();
       try{
         const response=await fetch('/api/rating');const result=await response.json();if(!response.ok)throw new Error(result.error||'Не удалось загрузить рейтинг.');
-        document.querySelector('.rating-period').textContent=`За последние ${result.periodDays} дней · обновлено ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`;
-        if(!result.rows.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent='Пока нет классов для рейтинга.';list.append(empty);return}
+        document.querySelector('.rating-period').textContent=`${tr('За последние')} ${result.periodDays} ${tr('дней')} · ${tr('обновлено')} ${new Date().toLocaleTimeString(localeTag(),{hour:'2-digit',minute:'2-digit'})}`;
+        if(!result.rows.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=tr('Пока нет классов для рейтинга.');list.append(empty);return}
         result.rows.forEach((row,index)=>{
           const card=document.createElement('article');card.className=`rating-row${index<3?' rating-top':''}`;
           const position=document.createElement('span');position.className='rating-position';position.textContent=index===0?'🏆':String(index+1).padStart(2,'0');
-          const nameWrap=document.createElement('div');nameWrap.className='rating-name';const name=document.createElement('h3');name.textContent=row.schoolClass;const active=document.createElement('p');active.textContent=`${row.activeStudents} активных учеников`;nameWrap.append(name,active);
+          const nameWrap=document.createElement('div');nameWrap.className='rating-name';const name=document.createElement('h3');name.textContent=row.schoolClass;const active=document.createElement('p');active.textContent=`${row.activeStudents} ${tr('активных учеников')}`;nameWrap.append(name,active);
           const stats=document.createElement('div');stats.className='rating-stats';
-          for(const [value,label] of [[row.initiatives,'инициатив'],[row.likes,'лайков']]){const stat=document.createElement('div');stat.className='rating-stat';const number=document.createElement('strong');number.textContent=value;const caption=document.createElement('span');caption.textContent=label;stat.append(number,caption);stats.append(stat)}
+          for(const [value,label] of [[row.initiatives,'инициатив'],[row.likes,'лайков']]){const stat=document.createElement('div');stat.className='rating-stat';const number=document.createElement('strong');number.textContent=value;const caption=document.createElement('span');caption.textContent=tr(label);stat.append(number,caption);stats.append(stat)}
           card.append(position,nameWrap,stats);list.append(card);
         });
-      }catch(error){const note=document.createElement('p');note.className='empty-content error';note.textContent=error.message||'Не удалось загрузить рейтинг.';list.append(note)}
+      }catch(error){const note=document.createElement('p');note.className='empty-content error';note.textContent=tr(error.message||'Не удалось загрузить рейтинг.');list.append(note)}
     }
     async function loadAdminDashboard(){
       try{const response=await fetch('/api/admin/stats');const stats=await response.json();if(!response.ok)throw new Error(stats.error);const panel=document.querySelector('#adminStats');panel.replaceChildren();
-        for(const [label,value] of [['Ученики',stats.students],['Инициативы',stats.initiatives],['Лайки',stats.likes],['Новости',stats.news],['Мероприятия',stats.events],['Уже в работе',stats.inProgress],['Реализовано',stats.realized],['Записались на события',stats.eventAttendees]]){const card=document.createElement('article');card.className='admin-stat-card';const number=document.createElement('strong');number.textContent=value;const caption=document.createElement('span');caption.textContent=label;card.append(number,caption);panel.append(card)}
+        for(const [label,value] of [['Ученики',stats.students],['Инициативы',stats.initiatives],['Лайки',stats.likes],['Новости',stats.news],['Мероприятия',stats.events],['Уже в работе',stats.inProgress],['Реализовано',stats.realized],['Записались на события',stats.eventAttendees]]){const card=document.createElement('article');card.className='admin-stat-card';const number=document.createElement('strong');number.textContent=value;const caption=document.createElement('span');caption.textContent=tr(label);card.append(number,caption);panel.append(card)}
       }catch(error){const panel=document.querySelector('#adminStats');panel.replaceChildren();const note=document.createElement('p');note.className='empty-content error';note.textContent=error.message;panel.append(note)}
     }
     function renderModerationList(){
       const list=document.querySelector('#moderationList');list.replaceChildren();
-      if(!portalInitiatives.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent='Пока нет инициатив для проверки.';list.append(empty);return}
+      if(!portalInitiatives.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=tr('Пока нет инициатив для проверки.');list.append(empty);return}
       portalInitiatives.forEach(idea=>{
-        const card=document.createElement('article');card.className='moderation-card';const heading=document.createElement('div');heading.className='moderation-heading';const title=document.createElement('h4');title.textContent=idea.title;const meta=document.createElement('span');meta.textContent=`${idea.author} · ${idea.schoolClass} · ${idea.likeCount} лайков`;heading.append(title,meta);
-        const description=document.createElement('p');description.textContent=idea.description;const controls=document.createElement('div');controls.className='moderation-controls';const status=document.createElement('select');for(const option of ['На рассмотрении','В работе','Реализовано'])status.add(new Option(option,option));status.value=idea.status;
-        const note=document.createElement('textarea');note.maxLength=500;note.placeholder='Пояснение или ответ ученику';note.value=idea.adminNote||'';
-        const save=document.createElement('button');save.type='button';save.className='pill';save.textContent='Сохранить статус';save.addEventListener('click',async()=>{save.disabled=true;try{const response=await fetch(`/api/admin/initiatives/${idea.id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({status:status.value,adminNote:note.value})});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadPortalContent();await loadAdminDashboard();showToast('Статус сохранён; автор уведомлён в Telegram.') }catch(error){showToast(error.message||'Не удалось сохранить статус.')}finally{save.disabled=false}});
-        const remove=document.createElement('button');remove.type='button';remove.className='button-light danger-link';remove.textContent='Удалить';remove.addEventListener('click',async()=>{if(!confirm('Удалить эту инициативу?'))return;try{const response=await fetch(`/api/admin/initiatives/${idea.id}`,{method:'DELETE'});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadPortalContent();await loadAdminDashboard()}catch(error){showToast(error.message||'Не удалось удалить инициативу.')}});
+        const card=document.createElement('article');card.className='moderation-card';const heading=document.createElement('div');heading.className='moderation-heading';const title=document.createElement('h4');title.textContent=idea.title;const meta=document.createElement('span');meta.textContent=`${idea.author} · ${idea.schoolClass} · ${idea.likeCount} ${tr('лайков')}`;heading.append(title,meta);
+        const description=document.createElement('p');description.textContent=idea.description;const controls=document.createElement('div');controls.className='moderation-controls';const status=document.createElement('select');for(const option of ['На рассмотрении','В работе','Реализовано'])status.add(new Option(tr(option),option));status.value=idea.status;
+        const note=document.createElement('textarea');note.maxLength=500;note.placeholder=tr('Пояснение или ответ ученику');note.value=idea.adminNote||'';
+        const save=document.createElement('button');save.type='button';save.className='pill';save.textContent=tr('Сохранить статус');save.addEventListener('click',async()=>{save.disabled=true;try{const response=await fetch(`/api/admin/initiatives/${idea.id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({status:status.value,adminNote:note.value})});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadPortalContent();await loadAdminDashboard();showToast('Статус сохранён; автор уведомлён в Telegram.') }catch(error){showToast(error.message||'Не удалось сохранить статус.')}finally{save.disabled=false}});
+        const remove=document.createElement('button');remove.type='button';remove.className='button-light danger-link';remove.textContent=tr('Удалить');remove.addEventListener('click',async()=>{if(!confirm(tr('Удалить эту инициативу?')))return;try{const response=await fetch(`/api/admin/initiatives/${idea.id}`,{method:'DELETE'});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadPortalContent();await loadAdminDashboard()}catch(error){showToast(error.message||'Не удалось удалить инициативу.')}});
         controls.append(status,note,save,remove);card.append(heading,description,controls);list.append(card);
       });
     }
     function renderAdminPosts(){
       const list=document.querySelector('#adminPostList');list.replaceChildren();
-      if(!portalPosts.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent='Публикаций пока нет.';list.append(empty);return}
-      portalPosts.forEach(post=>{const row=document.createElement('article');row.className='admin-post-row';const text=document.createElement('div');const title=document.createElement('strong');title.textContent=post.title;const meta=document.createElement('p');const when=post.scheduledAt?` · ${new Date(post.scheduledAt).toLocaleString('ru-RU')}`:'';meta.textContent=post.type==='event'?`${post.category}${when} · ${post.location||'Место не указано'}`:`${post.category}${when}`;text.append(title,meta);const actions=document.createElement('div');actions.className='admin-row-actions';const edit=document.createElement('button');edit.type='button';edit.className='text-link';edit.textContent='Изменить';edit.addEventListener('click',()=>beginPostEdit(post));const remove=document.createElement('button');remove.type='button';remove.className='text-link danger-link';remove.textContent='Удалить';remove.addEventListener('click',async()=>{if(!confirm('Удалить публикацию?'))return;try{const response=await fetch(`/api/admin/posts/${post.id}`,{method:'DELETE'});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadPortalContent();await loadAdminDashboard()}catch(error){showToast(error.message||'Не удалось удалить публикацию.')}});actions.append(edit,remove);row.append(text,actions);list.append(row)});
+      if(!portalPosts.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=tr('Публикаций пока нет.');list.append(empty);return}
+      portalPosts.forEach(post=>{const row=document.createElement('article');row.className='admin-post-row';const text=document.createElement('div');const title=document.createElement('strong');title.textContent=post.title;const meta=document.createElement('p');const when=post.scheduledAt?` · ${new Date(post.scheduledAt).toLocaleString(localeTag())}`:'';meta.textContent=post.type==='event'?`${post.category}${when} · ${tr(post.location||'Место не указано')}`:`${post.category}${when}`;text.append(title,meta);const actions=document.createElement('div');actions.className='admin-row-actions';const edit=document.createElement('button');edit.type='button';edit.className='text-link';edit.textContent=tr('Изменить');edit.addEventListener('click',()=>beginPostEdit(post));const remove=document.createElement('button');remove.type='button';remove.className='text-link danger-link';remove.textContent=tr('Удалить');remove.addEventListener('click',async()=>{if(!confirm(tr('Удалить публикацию?')))return;try{const response=await fetch(`/api/admin/posts/${post.id}`,{method:'DELETE'});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadPortalContent();await loadAdminDashboard()}catch(error){showToast(error.message||'Не удалось удалить публикацию.')}});actions.append(edit,remove);row.append(text,actions);list.append(row)});
     }
     function toggleEventFields(){const isEvent=document.querySelector('#postType').value==='event';document.querySelector('#eventFields').hidden=!isEvent;document.querySelector('#postDate').required=isEvent;document.querySelector('#postTime').required=isEvent;document.querySelector('#postLocation').required=isEvent;document.querySelector('#dateHint').textContent=isEvent?'Для мероприятия дата и время обязательны.':'Необязательно. Если указать дату, новость будет показана с этой датой вместо даты создания.'}
-    function resetPostForm(){const form=document.querySelector('#postForm');form.reset();form.elements.type.disabled=false;form.elements.postId.value='';document.querySelector('#postForm button[type="submit"]').textContent='Опубликовать';document.querySelector('.cancel-post-edit').hidden=true;toggleEventFields()}
-    function beginPostEdit(post){
+    function resetPostForm(){const form=document.querySelector('#postForm');form.reset();pendingImage=undefined;document.querySelector('#imagePreview').hidden=true;form.elements.type.disabled=false;form.elements.postId.value='';document.querySelector('#postForm button[type="submit"]').textContent='Опубликовать';document.querySelector('.cancel-post-edit').hidden=true;toggleEventFields()}
+    function beginPostEdit(post){pendingImage=undefined;
       const form=document.querySelector('#postForm');form.elements.postId.value=post.id;form.elements.type.value=post.type;form.elements.type.disabled=true;form.elements.title.value=post.title;form.elements.category.value=post.category;form.elements.description.value=post.description;form.elements.postDate.value='';form.elements.postTime.value='';form.elements.postLocation.value='';
       if(post.scheduledAt){const date=new Date(post.scheduledAt);form.elements.postDate.value=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;form.elements.postTime.value=`${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;form.elements.postLocation.value=post.location||''}
-      toggleEventFields();document.querySelector('#postForm button[type="submit"]').textContent='Сохранить изменения';document.querySelector('.cancel-post-edit').hidden=false;form.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+      showImagePreview(post.image||'');toggleEventFields();document.querySelector('#postForm button[type="submit"]').textContent=tr('Сохранить изменения');document.querySelector('.cancel-post-edit').hidden=false;form.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
     }
     document.querySelector('#postType').addEventListener('change',toggleEventFields);
     toggleEventFields();
@@ -308,22 +607,122 @@
     });
     document.querySelector('#postForm').addEventListener('submit',async event=>{
       event.preventDefault();const formElement=event.currentTarget;const submit=formElement.querySelector('button[type="submit"]');submit.disabled=true;
-      try{const form=new FormData(formElement);const payload=Object.fromEntries(form);const postId=payload.postId;delete payload.postId;payload.type=formElement.elements.type.value;const dateValue=document.querySelector('#postDate').value;const timeValue=document.querySelector('#postTime').value||'00:00';if(payload.type==='event'&&!dateValue)throw new Error('Укажи дату мероприятия.');if(dateValue){const scheduledAt=new Date(`${dateValue}T${timeValue}`);if(Number.isNaN(scheduledAt.getTime()))throw new Error('Некорректная дата или время.');payload.scheduledAt=scheduledAt.toISOString()}else{payload.scheduledAt=null}if(payload.type==='event')payload.location=document.querySelector('#postLocation').value;const response=await fetch(postId?`/api/admin/posts/${postId}`:'/api/admin/posts',{method:postId?'PUT':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const result=await response.json();if(!response.ok)throw new Error(result.error);resetPostForm();await loadPortalContent();await loadAdminDashboard();document.querySelector('#adminMessage').textContent=postId?'Изменения сохранены.':'Публикация добавлена.'}
-      catch(error){document.querySelector('#adminMessage').textContent=error.message||'Не удалось опубликовать.'}finally{submit.disabled=false}
+      try{const form=new FormData(formElement);const payload=Object.fromEntries(form);const postId=payload.postId;delete payload.postId;payload.type=formElement.elements.type.value;const dateValue=document.querySelector('#postDate').value;const timeValue=document.querySelector('#postTime').value||'00:00';if(payload.type==='event'&&!dateValue)throw new Error('Укажи дату мероприятия.');if(dateValue){const scheduledAt=new Date(`${dateValue}T${timeValue}`);if(Number.isNaN(scheduledAt.getTime()))throw new Error('Некорректная дата или время.');payload.scheduledAt=scheduledAt.toISOString()}else{payload.scheduledAt=null}if(payload.type==='event')payload.location=document.querySelector('#postLocation').value;if(pendingImage!==undefined)payload.image=pendingImage;const response=await fetch(postId?`/api/admin/posts/${postId}`:'/api/admin/posts',{method:postId?'PUT':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const result=await response.json();if(!response.ok)throw new Error(result.error);resetPostForm();await loadPortalContent();await loadAdminDashboard();document.querySelector('#adminMessage').textContent=tr(postId?'Изменения сохранены.':'Публикация добавлена.')}
+      catch(error){document.querySelector('#adminMessage').textContent=tr(error.message||'Не удалось опубликовать.')}finally{submit.disabled=false}
     });
     async function loadAdminClasses(){
-      try{const response=await fetch('/api/admin/classes');const result=await response.json();if(!response.ok)throw new Error(result.error);renderClassList(result.classes);document.querySelector('#adminMessage').textContent='Админ-доступ подтверждён через Telegram.'}
-      catch(error){document.querySelector('#adminMessage').textContent=error.message||'Не удалось загрузить классы.'}
+      try{const response=await fetch('/api/admin/classes');const result=await response.json();if(!response.ok)throw new Error(result.error);renderClassList(result.classes);document.querySelector('#adminMessage').textContent=tr('Админ-доступ подтверждён через Telegram.')}
+      catch(error){document.querySelector('#adminMessage').textContent=tr(error.message||'Не удалось загрузить классы.')}
     }
     function renderClassList(classNames){
       const list=document.querySelector('#classList');list.replaceChildren();
-      classNames.forEach(className=>{const chip=document.createElement('span');chip.className='class-chip';const label=document.createElement('span');label.textContent=className;const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.setAttribute('aria-label',`Удалить ${className}`);remove.addEventListener('click',async()=>{const response=await fetch('/api/admin/classes',{method:'DELETE',headers:{'content-type':'application/json'},body:JSON.stringify({className})});const result=await response.json();if(!response.ok){document.querySelector('#adminMessage').textContent=result.error;return}renderClassList(result.classes);loadClassOptions()});chip.append(label,remove);list.append(chip)});
+      classNames.forEach(className=>{const chip=document.createElement('span');chip.className='class-chip';const label=document.createElement('span');label.textContent=className;const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.setAttribute('aria-label',`Удалить ${className}`);remove.addEventListener('click',async()=>{const response=await fetch('/api/admin/classes',{method:'DELETE',headers:{'content-type':'application/json'},body:JSON.stringify({className})});const result=await response.json();if(!response.ok){document.querySelector('#adminMessage').textContent=tr(result.error);return}renderClassList(result.classes);loadClassOptions()});chip.append(label,remove);list.append(chip)});
     }
     document.querySelector('#addClassForm').addEventListener('submit',async event=>{
       event.preventDefault();const input=document.querySelector('#newClassName');
-      try{const response=await fetch('/api/admin/classes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({className:input.value})});const result=await response.json();if(!response.ok)throw new Error(result.error);renderClassList(result.classes);input.value='';loadClassOptions();document.querySelector('#adminMessage').textContent='Класс добавлен и доступен при регистрации.'}
+      try{const response=await fetch('/api/admin/classes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({className:input.value})});const result=await response.json();if(!response.ok)throw new Error(result.error);renderClassList(result.classes);input.value='';loadClassOptions();document.querySelector('#adminMessage').textContent=tr('Класс добавлен и доступен при регистрации.')}
       catch(error){document.querySelector('#adminMessage').textContent=error.message}
     });
+    const anonToken=(()=>{
+      const random=()=>[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
+      try{let token=localStorage.getItem('sodiqschool-anon');if(!/^[a-f0-9]{16,64}$/.test(token||'')){token=random();localStorage.setItem('sodiqschool-anon',token)}return token}
+      catch{return random()}
+    })();
+    let problemsCache=[];
+    let pendingImage=undefined;
+    const MAX_IMAGE_CHARS=1300000;
+    async function loadProblems(){
+      try{const response=await fetch(`/api/problems?token=${anonToken}`);const result=await response.json();if(!response.ok)throw new Error(result.error);problemsCache=result.problems;renderProblemRoots();if(currentAccount?.isAdmin)renderAdminProblems()}
+      catch(error){showToast(error.message||'Не удалось загрузить проблемы.')}
+    }
+    function renderProblemRoots(){
+      document.querySelectorAll('[data-problems-root]').forEach(root=>{
+        root.replaceChildren();
+        const form=document.createElement('form');form.className='problem-form';
+        form.innerHTML=`<label><span>${tr('Твоя проблема')}</span><textarea name="text" required minlength="5" maxlength="1000" placeholder="${tr('Опиши, что не так в школе…')}"></textarea></label><p class="problem-note">${tr('Ник и имя не сохраняются. Автор не виден ни ученикам, ни администрации.')}</p><button class="pill" type="submit">${tr('Отправить анонимно')}</button>`;
+        root.append(form);
+        const list=document.createElement('div');list.className='problem-list';
+        if(!problemsCache.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=tr('Пока нет проблем.');list.append(empty)}
+        problemsCache.forEach(problem=>{
+          const card=document.createElement('article');card.className='problem-card';
+          const text=document.createElement('p');text.className='problem-text';text.textContent=problem.text;
+          const foot=document.createElement('div');foot.className='problem-foot';
+          const date=document.createElement('span');date.textContent=new Date(problem.createdAt).toLocaleDateString(localeTag());
+          const support=document.createElement('button');support.type='button';support.className='problem-support';support.dataset.id=problem.id;support.setAttribute('aria-pressed',String(problem.supported));
+          support.textContent=`${problem.supported?'♥':'♡'} ${tr('Я тоже')} · ${problem.supportCount}`;
+          foot.append(date,support);card.append(text,foot);list.append(card);
+        });
+        root.append(list);
+      });
+    }
+    function renderAdminProblems(){
+      const list=document.querySelector('#adminProblemList');if(!list)return;list.replaceChildren();
+      if(!problemsCache.length){const empty=document.createElement('p');empty.className='empty-content';empty.textContent=tr('Пока нет проблем.');list.append(empty);return}
+      problemsCache.forEach(problem=>{
+        const row=document.createElement('article');row.className='admin-post-row';
+        const text=document.createElement('div');const body=document.createElement('p');body.textContent=problem.text;text.append(body);
+        const remove=document.createElement('button');remove.type='button';remove.className='text-link danger-link';remove.textContent=tr('Удалить');
+        remove.addEventListener('click',async()=>{
+          if(!confirm(tr('Удалить эту проблему?')))return;
+          try{const response=await fetch(`/api/admin/problems/${problem.id}`,{method:'DELETE'});const result=await response.json();if(!response.ok)throw new Error(result.error);await loadProblems()}
+          catch(error){showToast(error.message||'Не удалось удалить.')}
+        });
+        row.append(text,remove);list.append(row);
+      });
+    }
+    document.addEventListener('submit',async event=>{
+      const form=event.target;if(!form.classList?.contains('problem-form'))return;
+      event.preventDefault();
+      const button=form.querySelector('button[type="submit"]');button.disabled=true;
+      try{
+        const response=await fetch('/api/problems',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:form.elements.text.value})});
+        const result=await response.json();if(!response.ok)throw new Error(result.error);
+        form.reset();showToast('Проблема отправлена анонимно.');await loadProblems();
+      }catch(error){showToast(error.message||'Не удалось отправить.')}
+      finally{button.disabled=false}
+    });
+    document.addEventListener('click',async event=>{
+      const button=event.target.closest?.('.problem-support');if(!button)return;
+      try{
+        const response=await fetch(`/api/problems/${button.dataset.id}/support`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:anonToken})});
+        const result=await response.json();if(!response.ok)throw new Error(result.error);
+        await loadProblems();
+      }catch(error){showToast(error.message||'Не удалось поддержать.')}
+    });
+    async function compressImage(file){
+      const bitmap=await createImageBitmap(file);
+      const scale=Math.min(1,1200/Math.max(bitmap.width,bitmap.height));
+      const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+      const context=canvas.getContext('2d');context.fillStyle='#ffffff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+      bitmap.close?.();
+      let quality=0.82;let dataUrl=canvas.toDataURL('image/jpeg',quality);
+      while(dataUrl.length>MAX_IMAGE_CHARS&&quality>0.45){quality-=0.12;dataUrl=canvas.toDataURL('image/jpeg',quality)}
+      if(dataUrl.length>MAX_IMAGE_CHARS)throw new Error('Фото слишком большое даже после сжатия. Возьми фото поменьше.');
+      return dataUrl;
+    }
+    function showImagePreview(src){const box=document.querySelector('#imagePreview');box.hidden=!src;if(src)box.querySelector('img').src=src}
+    document.querySelector('#postImage').addEventListener('change',async event=>{
+      const input=event.currentTarget;const file=input.files[0];if(!file)return;
+      try{pendingImage=await compressImage(file);showImagePreview(pendingImage)}
+      catch(error){input.value='';pendingImage=undefined;showToast(error.message||'Не удалось обработать фото.')}
+    });
+    document.querySelector('#removeImage').addEventListener('click',()=>{pendingImage=null;document.querySelector('#postImage').value='';showImagePreview('')});
+    async function clearAll(url,promptText,after){
+      if(prompt(tr(promptText))!=='УДАЛИТЬ'){showToast('Удаление отменено.');return}
+      try{
+        const response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({confirm:'УДАЛИТЬ'})});
+        const result=await response.json();if(!response.ok)throw new Error(result.error);
+        await after();showToast(`${tr('Удалено:')} ${result.deleted}`);
+      }catch(error){showToast(error.message||'Не удалось удалить.')}
+    }
+    document.querySelector('#clearInitiatives').addEventListener('click',()=>clearAll('/api/admin/initiatives/clear','Чтобы удалить ВСЕ инициативы, напиши УДАЛИТЬ.',async()=>{await loadPortalContent();await loadAdminDashboard()}));
+    document.querySelector('#clearProblems').addEventListener('click',()=>clearAll('/api/admin/problems/clear','Чтобы удалить ВСЕ проблемы, напиши УДАЛИТЬ.',loadProblems));
+    document.querySelectorAll('[data-lang]').forEach(button=>button.addEventListener('click',()=>setLanguage(button.dataset.lang)));
+    document.documentElement.lang=lang;
+    document.querySelectorAll('[data-lang]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lang===lang)));
+    translateStatic();
+    loadProblems();
+
     loadPortalContent();showDashboard();
   </script>
 </body>

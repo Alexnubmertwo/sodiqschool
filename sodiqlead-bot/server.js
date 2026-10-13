@@ -24,6 +24,9 @@ const sessions = new Map();
 const classes = new Set();
 const posts = new Map();
 const initiatives = new Map();
+const problems = new Map();
+const problemsByAddress = new Map();
+const imagePattern = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
 const issuedByAddress = new Map();
 const loginAttemptsByAddress = new Map();
 const studentActions = new Map();
@@ -50,6 +53,7 @@ try {
   for (const className of saved.classes ?? ['10A', '10Oxford']) classes.add(className);
   for (const post of saved.posts ?? []) posts.set(post.id, post);
   for (const initiative of saved.initiatives ?? []) initiatives.set(initiative.id, initiative);
+  for (const problem of saved.problems ?? []) problems.set(problem.id, problem);
 } catch {
   classes.add('10A');
   classes.add('10Oxford');
@@ -75,7 +79,8 @@ function persist() {
     sessions: Object.fromEntries(sessions),
   classes: [...classes],
   posts: [...posts.values()],
-  initiatives: [...initiatives.values()]
+  initiatives: [...initiatives.values()],
+  problems: [...problems.values()]
   }, null, 2);
   saveQueue = saveQueue.catch(() => {}).then(async () => {
     try { await backupCurrentData(); }
@@ -129,11 +134,23 @@ function publicPost(post, account) {
   return { ...visiblePost, goingCount: attendees.length, going: Boolean(account && attendees.includes(account.telegramId)) };
 }
 
-async function readBody(request) {
+function publicProblem(problem, token = '') {
+  return { id: problem.id, text: problem.text, createdAt: problem.createdAt, supportCount: problem.supporters.length, supported: Boolean(token && problem.supporters.includes(token)) };
+}
+
+// undefined = keep existing, null = remove, string = new valid image, false = invalid
+function normalizeImage(value) {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+  if (typeof value !== 'string' || value.length > 1_500_000 || !imagePattern.test(value)) return false;
+  return value;
+}
+
+async function readBody(request, limit = 10_000) {
   let body = '';
   for await (const chunk of request) {
     body += chunk;
-    if (body.length > 10_000) throw new Error('Request body too large');
+    if (body.length > limit) throw new Error('Request body too large');
   }
   return JSON.parse(body || '{}');
 }
@@ -226,6 +243,40 @@ const server = createServer(async (request, response) => {
       else event.attendees.push(account.telegramId);
       await persist();
       return json(response, 200, { goingCount: event.attendees.length, going: existing < 0 });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/problems') {
+      const token = String(url.searchParams.get('token') ?? '');
+      const validToken = /^[a-f0-9]{16,64}$/.test(token) ? token : '';
+      return json(response, 200, { problems: [...problems.values()].sort((a, b) => b.createdAt - a.createdAt).map(problem => publicProblem(problem, validToken)) });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/problems') {
+      const address = request.socket.remoteAddress ?? 'unknown';
+      const recent = (problemsByAddress.get(address) ?? []).filter(time => Date.now() - time < 10 * 60_000);
+      if (recent.length >= 3) return json(response, 429, { error: 'Слишком много сообщений. Попробуй через несколько минут.' });
+      const body = await readBody(request);
+      const text = String(body.text ?? '').trim();
+      if (text.length < 5 || text.length > 1000) return json(response, 400, { error: 'Опиши проблему в 5–1000 символах.' });
+      // Anonymous: no name, no account and no IP is stored with the problem.
+      const problem = { id: randomBytes(8).toString('hex'), text, createdAt: Date.now(), supporters: [] };
+      problems.set(problem.id, problem);
+      recent.push(Date.now());
+      problemsByAddress.set(address, recent);
+      await persist();
+      return json(response, 201, publicProblem(problem));
+    }
+    const problemSupportMatch = url.pathname.match(/^\/api\/problems\/([a-f0-9]+)\/support$/);
+    if (request.method === 'POST' && problemSupportMatch) {
+      const problem = problems.get(problemSupportMatch[1]);
+      if (!problem) return json(response, 404, { error: 'Проблема не найдена.' });
+      const body = await readBody(request);
+      const token = String(body.token ?? '').trim();
+      if (!/^[a-f0-9]{16,64}$/.test(token)) return json(response, 400, { error: 'Некорректный токен.' });
+      if (!allowAction(`support:${token}`, 60, 60_000)) return json(response, 429, { error: 'Слишком часто. Подожди минуту.' });
+      const existing = problem.supporters.indexOf(token);
+      if (existing >= 0) problem.supporters.splice(existing, 1);
+      else problem.supporters.push(token);
+      await persist();
+      return json(response, 200, publicProblem(problem, token));
     }
     if (request.method === 'GET' && url.pathname === '/api/rating') {
       if (!getAccount(request)) return json(response, 401, { error: 'Войди в аккаунт, чтобы открыть рейтинг.' });
@@ -444,8 +495,33 @@ const server = createServer(async (request, response) => {
         await persist();
         return json(response, 200, { ok: true });
       }
-      if (request.method === 'POST' && url.pathname === '/api/admin/posts') {
+      if (request.method === 'POST' && url.pathname === '/api/admin/initiatives/clear') {
         const body = await readBody(request);
+        if (body.confirm !== 'УДАЛИТЬ') return json(response, 400, { error: 'Чтобы удалить все инициативы, напиши УДАЛИТЬ.' });
+        const deleted = initiatives.size;
+        initiatives.clear();
+        await persist();
+        return json(response, 200, { ok: true, deleted });
+      }
+      if (request.method === 'POST' && url.pathname === '/api/admin/problems/clear') {
+        const body = await readBody(request);
+        if (body.confirm !== 'УДАЛИТЬ') return json(response, 400, { error: 'Чтобы удалить все проблемы, напиши УДАЛИТЬ.' });
+        const deleted = problems.size;
+        problems.clear();
+        await persist();
+        return json(response, 200, { ok: true, deleted });
+      }
+      const adminProblemMatch = url.pathname.match(/^\/api\/admin\/problems\/([a-f0-9]+)$/);
+      if (adminProblemMatch && request.method === 'DELETE') {
+        if (!problems.has(adminProblemMatch[1])) return json(response, 404, { error: 'Проблема не найдена.' });
+        problems.delete(adminProblemMatch[1]);
+        await persist();
+        return json(response, 200, { ok: true });
+      }
+      if (request.method === 'POST' && url.pathname === '/api/admin/posts') {
+        const body = await readBody(request, 2_000_000);
+        const image = normalizeImage(body.image);
+        if (image === false) return json(response, 400, { error: 'Фото должно быть JPG, PNG или WebP до 1 МБ.' });
         const type = body.type;
         const title = String(body.title ?? '').trim();
         const description = String(body.description ?? '').trim();
@@ -455,7 +531,7 @@ const server = createServer(async (request, response) => {
         const location = type === 'event' ? String(body.location ?? '').trim().slice(0, 120) : '';
         if (scheduledAt !== null && !Number.isFinite(scheduledAt)) return json(response, 400, { error: 'Некорректная дата публикации.' });
         if (type === 'event' && (!Number.isFinite(scheduledAt) || !location)) return json(response, 400, { error: 'Для мероприятия укажи дату, время и место.' });
-        const post = { id: randomBytes(8).toString('hex'), type, title, description, category: category || (type === 'event' ? 'Мероприятие' : 'Новости школы'), author: `${account.firstName} ${account.lastName}`, createdAt: Date.now(), scheduledAt, location, attendees: [] };
+        const post = { id: randomBytes(8).toString('hex'), type, title, description, category: category || (type === 'event' ? 'Мероприятие' : 'Новости школы'), author: `${account.firstName} ${account.lastName}`, createdAt: Date.now(), scheduledAt, location, attendees: [], image: image ?? null };
         posts.set(post.id, post);
         await persist();
         return json(response, 201, publicPost(post, account));
@@ -464,7 +540,9 @@ const server = createServer(async (request, response) => {
       if (adminPostMatch && request.method === 'PUT') {
         const post = posts.get(adminPostMatch[1]);
         if (!post) return json(response, 404, { error: 'Публикация не найдена.' });
-        const body = await readBody(request);
+        const body = await readBody(request, 2_000_000);
+        const image = normalizeImage(body.image);
+        if (image === false) return json(response, 400, { error: 'Фото должно быть JPG, PNG или WebP до 1 МБ.' });
         const title = String(body.title ?? '').trim();
         const description = String(body.description ?? '').trim();
         const category = String(body.category ?? '').trim().slice(0, 40);
@@ -473,6 +551,7 @@ const server = createServer(async (request, response) => {
         if (scheduledAt !== null && !Number.isFinite(scheduledAt)) return json(response, 400, { error: 'Некорректная дата публикации.' });
         if (title.length < 3 || title.length > 100 || description.length < 5 || description.length > 2000 || (post.type === 'event' && (!Number.isFinite(scheduledAt) || !location))) return json(response, 400, { error: 'Проверь заголовок, текст и данные мероприятия.' });
         Object.assign(post, { title, description, category: category || post.category, scheduledAt, location, updatedAt: Date.now() });
+        if (image !== undefined) post.image = image;
         await persist();
         return json(response, 200, publicPost(post, account));
       }
@@ -504,6 +583,7 @@ const server = createServer(async (request, response) => {
     return json(response, 404, { error: 'Not found' });
   } catch (error) {
     console.error('Request failed:', error.message);
+    if (error.message === 'Request body too large') return json(response, 413, { error: 'Слишком большой файл или текст.' });
     return json(response, error instanceof SyntaxError ? 400 : 500, { error: error instanceof SyntaxError ? 'Некорректный JSON.' : 'Внутренняя ошибка сервера.' });
   }
 });
