@@ -46,8 +46,39 @@ if (!apiSecret || apiSecret.length < 24) {
   process.exit(1);
 }
 
-try {
-  const saved = JSON.parse(await readFile(dbPath, 'utf8'));
+// Optional Supabase storage: when SUPABASE_URL and SUPABASE_SECRET_KEY are set, the whole store lives in
+// the app_store table (row id = 1) instead of data.json, so it survives every redeploy.
+const supabaseUrl = (process.env.SUPABASE_URL ?? '').replace(/\/+$/, '');
+const supabaseKey = process.env.SUPABASE_SECRET_KEY ?? '';
+const useSupabase = Boolean(supabaseUrl && supabaseKey);
+const supabaseHeaders = { apikey: supabaseKey, authorization: `Bearer ${supabaseKey}`, 'content-type': 'application/json' };
+
+async function loadSavedData() {
+  if (!useSupabase) {
+    try { return JSON.parse(await readFile(dbPath, 'utf8')); }
+    catch { return null; }
+  }
+  const response = await fetch(`${supabaseUrl}/rest/v1/app_store?id=eq.1&select=data`, {
+    headers: supabaseHeaders,
+    signal: AbortSignal.timeout(10_000)
+  });
+  if (!response.ok) throw new Error(`Supabase load failed with status ${response.status}`);
+  const rows = await response.json();
+  return rows[0]?.data ?? null;
+}
+
+let saved;
+try { saved = await loadSavedData(); }
+catch (error) {
+  // Never start from empty data when the remote store is unreachable: the next save would overwrite everything.
+  if (useSupabase) {
+    console.error(error.message);
+    process.exit(1);
+  }
+  saved = null;
+}
+
+if (saved) {
   for (const [code, value] of Object.entries(saved.codes ?? {})) codes.set(code, value);
   for (const [telegramId, value] of Object.entries(saved.accounts ?? {})) accounts.set(telegramId, value);
   for (const [sessionId, value] of Object.entries(saved.sessions ?? {})) sessions.set(sessionId, value);
@@ -55,10 +86,12 @@ try {
   for (const post of saved.posts ?? []) posts.set(post.id, post);
   for (const initiative of saved.initiatives ?? []) initiatives.set(initiative.id, initiative);
   for (const problem of saved.problems ?? []) problems.set(problem.id, problem);
-} catch {
+} else {
   classes.add('10A');
   classes.add('10Oxford');
 }
+
+if (useSupabase) console.log('SodiqSchool data store: Supabase');
 
 let saveQueue = Promise.resolve();
 async function backupCurrentData() {
@@ -84,6 +117,16 @@ function persist() {
   problems: [...problems.values()]
   }, null, 2);
   saveQueue = saveQueue.catch(() => {}).then(async () => {
+    if (useSupabase) {
+      const response = await fetch(`${supabaseUrl}/rest/v1/app_store?id=eq.1`, {
+        method: 'PATCH',
+        headers: { ...supabaseHeaders, prefer: 'return=minimal' },
+        body: JSON.stringify({ data: JSON.parse(snapshot), updated_at: new Date().toISOString() }),
+        signal: AbortSignal.timeout(15_000)
+      });
+      if (!response.ok) throw new Error(`Supabase save failed with status ${response.status}`);
+      return;
+    }
     try { await backupCurrentData(); }
     catch (error) { console.error('Could not create data backup:', error.message); }
     const temporaryPath = `${dbPath}.${randomBytes(6).toString('hex')}.tmp`;
@@ -93,8 +136,10 @@ function persist() {
   return saveQueue;
 }
 
-try { await backupCurrentData(); }
-catch (error) { console.error('Could not create initial data backup:', error.message); }
+if (!useSupabase) {
+  try { await backupCurrentData(); }
+  catch (error) { console.error('Could not create initial data backup:', error.message); }
+}
 
 async function notifyTelegram(telegramId, text) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
