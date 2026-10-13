@@ -27,6 +27,7 @@ const classes = new Set();
 const posts = new Map();
 const initiatives = new Map();
 const problems = new Map();
+let siteIcon = null; // data URL of the browser-tab icon; null means the default icon
 const imagePattern = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
 const issuedByAddress = new Map();
 const loginAttemptsByAddress = new Map();
@@ -86,6 +87,7 @@ if (saved) {
   for (const post of saved.posts ?? []) posts.set(post.id, post);
   for (const initiative of saved.initiatives ?? []) initiatives.set(initiative.id, initiative);
   for (const problem of saved.problems ?? []) problems.set(problem.id, problem);
+  siteIcon = typeof saved.siteIcon === 'string' && imagePattern.test(saved.siteIcon) ? saved.siteIcon : null;
 } else {
   classes.add('10A');
   classes.add('10Oxford');
@@ -114,7 +116,8 @@ function persist() {
   classes: [...classes],
   posts: [...posts.values()],
   initiatives: [...initiatives.values()],
-  problems: [...problems.values()]
+  problems: [...problems.values()],
+  siteIcon
   }, null, 2);
   saveQueue = saveQueue.catch(() => {}).then(async () => {
     if (useSupabase) {
@@ -278,6 +281,7 @@ const server = createServer(async (request, response) => {
     }
     if (request.method === 'GET' && url.pathname === '/api/health') return json(response, 200, { ok: true });
     if (request.method === 'GET' && url.pathname === '/api/classes') return json(response, 200, { classes: [...classes].sort((a, b) => a.localeCompare(b, 'ru')) });
+    if (request.method === 'GET' && url.pathname === '/api/site-icon') return json(response, 200, { icon: siteIcon });
     if (request.method === 'GET' && url.pathname === '/api/content') {
       const account = getAccount(request);
       return json(response, 200, {
@@ -516,6 +520,14 @@ const server = createServer(async (request, response) => {
       const account = getAccount(request);
       if (!account || !isAdmin(account)) return json(response, 403, { error: 'Этот раздел доступен только администратору @ShindoTensei.' });
       if (request.method === 'GET' && url.pathname === '/api/admin/classes') return json(response, 200, { classes: [...classes].sort((a, b) => a.localeCompare(b, 'ru')) });
+      if (request.method === 'PUT' && url.pathname === '/api/admin/site-icon') {
+        const body = await readBody(request, 2_000_000);
+        const icon = normalizeImage(body.image);
+        if (icon === false) return json(response, 400, { error: 'Выбери картинку JPG, PNG или WebP.' });
+        siteIcon = icon ?? null;
+        await persist();
+        return json(response, 200, { icon: siteIcon });
+      }
       if (request.method === 'GET' && url.pathname === '/api/admin/stats') {
         const allLikes = [...initiatives.values()].reduce((sum, idea) => sum + (Array.isArray(idea.likes) ? idea.likes.length : 0), 0);
         const eventAttendees = [...posts.values()].reduce((sum, post) => sum + (Array.isArray(post.attendees) ? post.attendees.length : 0), 0);
