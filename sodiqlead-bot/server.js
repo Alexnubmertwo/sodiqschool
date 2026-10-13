@@ -250,7 +250,8 @@ const server = createServer(async (request, response) => {
     }
     if (request.method === 'GET' && url.pathname === '/api/problems') {
       const account = getAccount(request);
-      const key = account ? problemKey(account.telegramId) : '';
+      const token = String(url.searchParams.get('token') ?? '');
+      const key = account ? problemKey(account.telegramId) : (/^[a-f0-9]{16,64}$/.test(token) ? problemKey(`anon:${token}`) : '');
       return json(response, 200, { canWrite: Boolean(account), problems: [...problems.values()].sort((a, b) => b.createdAt - a.createdAt).map(problem => publicProblem(problem, key)) });
     }
     if (request.method === 'POST' && url.pathname === '/api/problems') {
@@ -268,12 +269,16 @@ const server = createServer(async (request, response) => {
     }
     const problemSupportMatch = url.pathname.match(/^\/api\/problems\/([a-f0-9]+)\/support$/);
     if (request.method === 'POST' && problemSupportMatch) {
+      // Anyone can support. Students are counted by account, guests by a random per-browser token.
       const account = getAccount(request);
-      if (!account) return json(response, 401, { error: 'Войди в аккаунт ученика, чтобы поддержать проблему.' });
+      const body = await readBody(request);
+      const token = String(body.token ?? '').trim();
+      if (!account && !/^[a-f0-9]{16,64}$/.test(token)) return json(response, 400, { error: 'Не удалось определить браузер. Обнови страницу.' });
       const problem = problems.get(problemSupportMatch[1]);
       if (!problem) return json(response, 404, { error: 'Проблема не найдена.' });
-      if (!allowAction(`support:${account.telegramId}`, 60, 60_000)) return json(response, 429, { error: 'Слишком часто. Подожди минуту.' });
-      const key = problemKey(account.telegramId);
+      const limitKey = account ? `support:${account.telegramId}` : `support-ip:${request.socket.remoteAddress ?? 'unknown'}`;
+      if (!allowAction(limitKey, account ? 60 : 30, 60_000)) return json(response, 429, { error: 'Слишком часто. Подожди минуту.' });
+      const key = account ? problemKey(account.telegramId) : problemKey(`anon:${token}`);
       const existing = problem.supporters.indexOf(key);
       if (existing >= 0) problem.supporters.splice(existing, 1);
       else problem.supporters.push(key);

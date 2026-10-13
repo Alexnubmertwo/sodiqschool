@@ -625,11 +625,16 @@
       try{const response=await fetch('/api/admin/classes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({className:input.value})});const result=await response.json();if(!response.ok)throw new Error(result.error);renderClassList(result.classes);input.value='';loadClassOptions();document.querySelector('#adminMessage').textContent=tr('Класс добавлен и доступен при регистрации.')}
       catch(error){document.querySelector('#adminMessage').textContent=error.message}
     });
+    const anonToken=(()=>{
+      const random=()=>[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
+      try{let token=localStorage.getItem('sodiqschool-anon');if(!/^[a-f0-9]{16,64}$/.test(token||'')){token=random();localStorage.setItem('sodiqschool-anon',token)}return token}
+      catch{return random()}
+    })();
     let problemsCache=[];
     let pendingImage=undefined;
     const MAX_IMAGE_CHARS=1300000;
     async function loadProblems(){
-      try{const response=await fetch('/api/problems');const result=await response.json();if(!response.ok)throw new Error(result.error);problemsCache=result.problems;renderProblemRoots();if(currentAccount?.isAdmin)renderAdminProblems()}
+      try{const response=await fetch(`/api/problems?token=${anonToken}`);const result=await response.json();if(!response.ok)throw new Error(result.error);problemsCache=result.problems;renderProblemRoots();if(currentAccount?.isAdmin)renderAdminProblems()}
       catch(error){showToast(error.message||'Не удалось загрузить проблемы.')}
     }
     function renderProblemRoots(){
@@ -682,8 +687,7 @@
     document.addEventListener('click',async event=>{
       const button=event.target.closest?.('.problem-support');if(!button)return;
       try{
-        const response=await fetch(`/api/problems/${button.dataset.id}/support`,{method:'POST',headers:{'content-type':'application/json'},});
-        if(response.status===401){openAuth('login');showToast('Войди, чтобы поддержать проблему.');return}
+        const response=await fetch(`/api/problems/${button.dataset.id}/support`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:anonToken})});
         const result=await response.json();if(!response.ok)throw new Error(result.error);
         await loadProblems();
       }catch(error){showToast(error.message||'Не удалось поддержать.')}
