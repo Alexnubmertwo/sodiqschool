@@ -279,6 +279,17 @@ const server = createServer(async (request, response) => {
       response.writeHead(200, { ...securityHeaders, 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
       return response.end(page);
     }
+    if (request.method === 'GET' && (url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt')) {
+      const protocol = request.headers['x-forwarded-proto']?.split(',')[0].trim() === 'http' ? 'http' : 'https';
+      const host = /^[a-z0-9.-]+(:\d+)?$/i.test(request.headers.host ?? '') ? request.headers.host : 'localhost';
+      const origin = `${protocol}://${host}`;
+      const isSitemap = url.pathname === '/sitemap.xml';
+      const body = isSitemap
+        ? `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin}/</loc></url></urlset>\n`
+        : `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`;
+      response.writeHead(200, { ...securityHeaders, 'content-type': isSitemap ? 'application/xml; charset=utf-8' : 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' });
+      return response.end(body);
+    }
     if (request.method === 'GET' && url.pathname === '/api/health') return json(response, 200, { ok: true });
     if (request.method === 'GET' && url.pathname === '/api/classes') return json(response, 200, { classes: [...classes].sort((a, b) => a.localeCompare(b, 'ru')) });
     if (request.method === 'GET' && url.pathname === '/api/site-icon') return json(response, 200, { icon: siteIcon });
