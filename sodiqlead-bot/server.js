@@ -279,6 +279,11 @@ const server = createServer(async (request, response) => {
       response.writeHead(200, { ...securityHeaders, 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
       return response.end(page);
     }
+    if (request.method === 'GET' && url.pathname === '/icon.png') {
+      const icon = await readFile(path.join(directory, '..', 'icon.png'));
+      response.writeHead(200, { ...securityHeaders, 'content-type': 'image/png', 'cache-control': 'public, max-age=86400' });
+      return response.end(icon);
+    }
     if (request.method === 'GET' && (url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt')) {
       const protocol = request.headers['x-forwarded-proto']?.split(',')[0].trim() === 'http' ? 'http' : 'https';
       const host = /^[a-z0-9.-]+(:\d+)?$/i.test(request.headers.host ?? '') ? request.headers.host : 'localhost';

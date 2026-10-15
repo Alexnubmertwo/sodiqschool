@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f7f7f2">
+  <link rel="icon" type="image/png" href="/icon.png">
+  <link rel="apple-touch-icon" href="/icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap">
@@ -14,6 +16,7 @@
   <meta property="og:description" content="Портал школьных инициатив, новостей и мероприятий. Вход через Telegram-бота SodiqLead.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SodiqLead">
+  <meta property="og:image" content="/icon.png">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SodiqLead","alternateName":["SodiqSchool"],"url":"https://sodiqschool-web-production.up.railway.app/","inLanguage":["ru","uz"]}</script>
   <meta name="robots" content="index, follow">
   <meta name="google-site-verification" content="mp1vF0J_52j5RA-J7iFZxpy-XAwS945T6I-TSA_8x3g">
@@ -27,7 +30,7 @@
 <body>
   <a class="skip-link" href="#top">Перейти к содержимому</a>
   <header class="wrap topbar">
-    <a class="brand" href="#top" style="text-decoration:none;color:inherit"><img class="school-logo" src="https://sodiqschool.uz/icon.jpg?ed148fd4f0a9fa95" alt="Логотип Sodiq School" width="40" height="40" decoding="async"><span>SodiqSchool<small>Школьное самоуправление</small></span></a>
+    <a class="brand" href="#top" style="text-decoration:none;color:inherit"><img class="school-logo" src="/icon.png" alt="Логотип SodiqLead" width="40" height="40" decoding="async"><span>SodiqLead<small>Школьное самоуправление</small></span></a>
     <nav class="nav"><a href="#news">Новости</a><a href="#ideas">Инициативы</a><a href="#problems">Проблемы</a><a href="#about">О проекте</a></nav>
     <div class="auth-actions"><div class="lang-switch" role="group" aria-label="Язык"><button type="button" data-lang="ru" aria-pressed="true">RU</button><button type="button" data-lang="uz" aria-pressed="false">UZ</button></div><button class="button-light" data-open-login>Войти</button><button class="pill" data-open-registration>Регистрация&nbsp; ↗</button><span id="signedInBadge" hidden></span><button class="button-light" id="logoutButton" hidden>Выйти</button></div>
   </header>
@@ -727,7 +730,7 @@
         await after();showToast(`${tr('Удалено:')} ${result.deleted}`);
       }catch(error){showToast(error.message||'Не удалось удалить.')}
     }
-    const defaultSiteIcon="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23286b4c'/%3E%3Ctext x='50' y='70' font-size='60' font-family='Arial' font-weight='700' text-anchor='middle' fill='%23c9ed79'%3ES%3C/text%3E%3C/svg%3E";
+    const defaultSiteIcon="/icon.png";
     function applySiteIcon(icon){let link=document.querySelector('link[rel="icon"]');if(!link){link=document.createElement('link');link.rel='icon';document.head.append(link)}link.href=icon||defaultSiteIcon}
     async function loadSiteIcon(){try{const response=await fetch('/api/site-icon');if(response.ok)applySiteIcon((await response.json()).icon)}catch{}}
     async function saveSiteIcon(icon){
