@@ -731,8 +731,7 @@
         await after();showToast(`${tr('Удалено:')} ${result.deleted}`);
       }catch(error){showToast(error.message||'Не удалось удалить.')}
     }
-    const defaultSiteIcon="/icon.png";
-    function applySiteIcon(icon){let link=document.querySelector('link[rel="icon"]');if(!link){link=document.createElement('link');link.rel='icon';document.head.append(link)}link.href=icon||defaultSiteIcon}
+    function applySiteIcon(icon){let link=document.querySelector('link[rel="icon"]');if(!link){link=document.createElement('link');link.rel='icon';document.head.append(link)}link.href=icon?`/icon.png?v=${Date.now()}`:'/icon.png'}
     async function loadSiteIcon(){try{const response=await fetch('/api/site-icon');if(response.ok)applySiteIcon((await response.json()).icon)}catch{}}
     async function saveSiteIcon(icon){
       const response=await fetch('/api/admin/site-icon',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({image:icon})});

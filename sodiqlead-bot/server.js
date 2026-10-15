@@ -279,9 +279,11 @@ const server = createServer(async (request, response) => {
       response.writeHead(200, { ...securityHeaders, 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
       return response.end(page);
     }
-    if (request.method === 'GET' && url.pathname === '/icon.png') {
-      const icon = await readFile(path.join(directory, '..', 'icon.png'));
-      response.writeHead(200, { ...securityHeaders, 'content-type': 'image/png', 'cache-control': 'public, max-age=86400' });
+    if (request.method === 'GET' && ['/icon.png', '/favicon.png', '/favicon.ico'].includes(url.pathname)) {
+      // Search engines need a plain URL with real image bytes: the admin-uploaded icon if there is one, otherwise the SodiqLead logo file.
+      const match = siteIcon?.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/);
+      const icon = match ? Buffer.from(match[2], 'base64') : await readFile(path.join(directory, '..', 'icon.png'));
+      response.writeHead(200, { ...securityHeaders, 'content-type': match ? match[1] : 'image/png', 'cache-control': 'public, max-age=300' });
       return response.end(icon);
     }
     if (request.method === 'GET' && (url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt')) {
