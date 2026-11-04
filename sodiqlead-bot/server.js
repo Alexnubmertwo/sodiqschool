@@ -286,6 +286,15 @@ const server = createServer(async (request, response) => {
       response.writeHead(200, { ...securityHeaders, 'content-type': match ? match[1] : 'image/png', 'cache-control': 'public, max-age=300' });
       return response.end(icon);
     }
+    const verificationMatch = url.pathname.match(/^\/(google[a-f0-9]+\.html)$/);
+    if (request.method === 'GET' && verificationMatch) {
+      // Google Search Console HTML-file verification: the file must sit at the site root with its exact content.
+      const verificationFile = await readFile(path.join(directory, '..', verificationMatch[1])).catch(() => null);
+      if (verificationFile) {
+        response.writeHead(200, { ...securityHeaders, 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=3600' });
+        return response.end(verificationFile);
+      }
+    }
     if (request.method === 'GET' && (url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt')) {
       const protocol = request.headers['x-forwarded-proto']?.split(',')[0].trim() === 'http' ? 'http' : 'https';
       const host = /^[a-z0-9.-]+(:\d+)?$/i.test(request.headers.host ?? '') ? request.headers.host : 'localhost';
