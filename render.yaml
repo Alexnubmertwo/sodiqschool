@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: sodiqschool
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        value: https://wrscglrmuvmxhkmtdnyx.supabase.co
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SODIQLEAD_API_SECRET
+        generateValue: true
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: SODIQSCHOOL_ADMIN_TELEGRAM
+        value: ShindoTensei
