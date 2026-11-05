@@ -328,7 +328,7 @@ const server = createServer(async (request, response) => {
       if (!allowAction(`rsvp:${account.telegramId}`, 15, 60_000)) return json(response, 429, { error: 'Слишком много действий с событиями. Подожди минуту.' });
       const event = posts.get(rsvpMatch[1]);
       if (!event || event.type !== 'event') return json(response, 404, { error: 'Мероприятие не найдено.' });
-      if (event.scheduledAt && Date.parse(event.scheduledAt) < Date.now()) return json(response, 410, { error: 'Запись на это мероприятие завершена.' });
+      if ((event.endAt ?? event.scheduledAt) && Number(event.endAt ?? event.scheduledAt) < Date.now()) return json(response, 410, { error: 'Запись на это мероприятие завершена.' });
       event.attendees = Array.isArray(event.attendees) ? event.attendees : [];
       const existing = event.attendees.indexOf(account.telegramId);
       if (existing >= 0) event.attendees.splice(existing, 1);
@@ -634,7 +634,9 @@ const server = createServer(async (request, response) => {
         const location = type === 'event' ? String(body.location ?? '').trim().slice(0, 120) : '';
         if (scheduledAt !== null && !Number.isFinite(scheduledAt)) return json(response, 400, { error: 'Некорректная дата публикации.' });
         if (type === 'event' && (!Number.isFinite(scheduledAt) || !location)) return json(response, 400, { error: 'Для мероприятия укажи дату, время и место.' });
-        const post = { id: randomBytes(8).toString('hex'), type, title, description, category: category || (type === 'event' ? 'Мероприятие' : 'Новости школы'), author: `${account.firstName} ${account.lastName}`, createdAt: Date.now(), scheduledAt, location, attendees: [], image: image ?? null };
+        const endAt = type === 'event' && body.endAt ? Date.parse(body.endAt) : null;
+        if (endAt !== null && (!Number.isFinite(endAt) || endAt < scheduledAt)) return json(response, 400, { error: 'Дата окончания не может быть раньше даты начала.' });
+        const post = { id: randomBytes(8).toString('hex'), type, title, description, category: category || (type === 'event' ? 'Мероприятие' : 'Новости школы'), author: `${account.firstName} ${account.lastName}`, createdAt: Date.now(), scheduledAt, endAt, location, attendees: [], image: image ?? null };
         posts.set(post.id, post);
         await persist();
         return json(response, 201, publicPost(post, account));
@@ -653,7 +655,9 @@ const server = createServer(async (request, response) => {
         const location = post.type === 'event' ? String(body.location ?? '').trim().slice(0, 120) : '';
         if (scheduledAt !== null && !Number.isFinite(scheduledAt)) return json(response, 400, { error: 'Некорректная дата публикации.' });
         if (title.length < 3 || title.length > 100 || description.length < 5 || description.length > 2000 || (post.type === 'event' && (!Number.isFinite(scheduledAt) || !location))) return json(response, 400, { error: 'Проверь заголовок, текст и данные мероприятия.' });
-        Object.assign(post, { title, description, category: category || post.category, scheduledAt, location, updatedAt: Date.now() });
+        const endAt = post.type === 'event' && body.endAt ? Date.parse(body.endAt) : null;
+        if (endAt !== null && (!Number.isFinite(endAt) || (Number.isFinite(scheduledAt) && endAt < scheduledAt))) return json(response, 400, { error: 'Дата окончания не может быть раньше даты начала.' });
+        Object.assign(post, { title, description, category: category || post.category, scheduledAt, endAt, location, updatedAt: Date.now() });
         if (image !== undefined) post.image = image;
         await persist();
         return json(response, 200, publicPost(post, account));
@@ -663,6 +667,21 @@ const server = createServer(async (request, response) => {
         posts.delete(adminPostMatch[1]);
         await persist();
         return json(response, 200, { ok: true });
+      }
+      if (request.method === 'GET' && url.pathname === '/api/admin/students') {
+        const students = [...accounts.entries()].filter(([, student]) => !isAdmin(student)).map(([telegramId, student]) => ({ telegramId: String(telegramId), firstName: student.firstName, lastName: student.lastName, schoolClass: student.schoolClass, username: student.username ?? '', registeredAt: student.confirmedAt ?? null, lastLoginAt: student.lastLoginAt ?? null })).sort((a, b) => Number(b.registeredAt ?? 0) - Number(a.registeredAt ?? 0));
+        return json(response, 200, { students });
+      }
+      const adminStudentMatch = url.pathname.match(/^\/api\/admin\/students\/(\d+)\/class$/);
+      if (adminStudentMatch && request.method === 'PUT') {
+        const entry = [...accounts.entries()].find(([id]) => String(id) === adminStudentMatch[1]);
+        if (!entry || isAdmin(entry[1])) return json(response, 404, { error: 'Ученик не найден.' });
+        const body = await readBody(request);
+        const schoolClass = String(body.schoolClass ?? '').trim();
+        if (!classes.has(schoolClass)) return json(response, 400, { error: 'Выбери существующий класс.' });
+        entry[1].schoolClass = schoolClass;
+        await persist();
+        return json(response, 200, { telegramId: adminStudentMatch[1], schoolClass });
       }
       if (request.method === 'POST' && url.pathname === '/api/admin/classes') {
         const body = await readBody(request);
