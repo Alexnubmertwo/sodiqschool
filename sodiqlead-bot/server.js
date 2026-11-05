@@ -221,9 +221,30 @@ function hasApiSecret(request) {
   return constantTimeMatch(request.headers.authorization?.replace(/^Bearer\s+/i, '') ?? '', apiSecret);
 }
 
+// Signed login token: survives server restarts because it carries its own expiry and is verified with the server secret.
+function signSessionToken(telegramId, expiresAt) {
+  const payload = `${telegramId}.${expiresAt}`;
+  return `${payload}.${createHmac('sha256', apiSecret).update(payload).digest('hex')}`;
+}
+
+function readSignedSession(token) {
+  const match = token.match(/^(\d+)\.(\d+)\.([a-f0-9]{64})$/);
+  if (!match) return null;
+  const expected = createHmac('sha256', apiSecret).update(`${match[1]}.${match[2]}`).digest('hex');
+  if (expected.length !== match[3].length || !timingSafeEqual(Buffer.from(expected), Buffer.from(match[3]))) return null;
+  if (Number(match[2]) <= Date.now()) return null;
+  return { telegramId: match[1], expiresAt: Number(match[2]) };
+}
+
 function getAccount(request) {
   const cookieHeader = request.headers.cookie ?? '';
-  const sessionId = cookieHeader.match(/(?:^|;\s*)sodiqschool_session=([a-f0-9]+)/)?.[1];
+  const token = cookieHeader.match(/(?:^|;\s*)sodiqschool_session=([^;\s]+)/)?.[1] ?? '';
+  const signed = readSignedSession(token);
+  if (signed) {
+    const signedAccount = accounts.get(signed.telegramId);
+    return signedAccount ? { ...signedAccount, telegramId: signed.telegramId, sessionId: null } : null;
+  }
+  const sessionId = token.match(/^[a-f0-9]+$/) ? token : undefined;
   const session = sessionId ? sessions.get(sessionId) : null;
   if (!session || session.expiresAt <= Date.now()) return null;
   const account = accounts.get(session.telegramId);
@@ -532,7 +553,7 @@ const server = createServer(async (request, response) => {
         sessions.set(entry.sessionId, { telegramId: entry.telegramId, expiresAt: Date.now() + sessionLifetime * 1000 });
       }
       const secureCookie = request.socket.encrypted || request.headers['x-forwarded-proto']?.split(',')[0].trim() === 'https' ? '; Secure' : '';
-      const cookie = `sodiqschool_session=${entry.sessionId}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${sessionLifetime}${secureCookie}`;
+      const cookie = `sodiqschool_session=${signSessionToken(entry.telegramId, Date.now() + sessionLifetime * 1000)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${sessionLifetime}${secureCookie}`;
       if (!entry.sessionIssued) {
         entry.sessionIssued = true;
         await persist();
@@ -542,7 +563,7 @@ const server = createServer(async (request, response) => {
 
     if (request.method === 'POST' && url.pathname === '/api/logout') {
       const account = getAccount(request);
-      if (account) sessions.delete(account.sessionId);
+      if (account?.sessionId) sessions.delete(account.sessionId);
       await persist();
       return json(response, 200, { ok: true }, { 'set-cookie': 'sodiqschool_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0' });
     }
