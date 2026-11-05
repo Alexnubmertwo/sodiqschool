@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 import { copyFile, mkdir, readFile, readdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -276,8 +277,11 @@ const server = createServer(async (request, response) => {
     }
     if (request.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
       const page = await readFile(path.join(directory, '..', 'index.html'));
-      response.writeHead(200, { ...securityHeaders, 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
-      return response.end(page);
+      // The page is ~118 KB; compressing it (~28 KB) keeps it under size limits of monitoring tools and speeds up loading.
+      const acceptsGzip = String(request.headers['accept-encoding'] ?? '').includes('gzip');
+      const body = acceptsGzip ? gzipSync(page) : page;
+      response.writeHead(200, { ...securityHeaders, 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', vary: 'Accept-Encoding', ...(acceptsGzip ? { 'content-encoding': 'gzip' } : {}) });
+      return response.end(body);
     }
     if (request.method === 'GET' && ['/icon.png', '/favicon.png', '/favicon.ico'].includes(url.pathname)) {
       // Search engines need a plain URL with real image bytes: the admin-uploaded icon if there is one, otherwise the SodiqLead logo file.
