@@ -28,6 +28,7 @@ const classes = new Set();
 const posts = new Map();
 const initiatives = new Map();
 const problems = new Map();
+const gallery = new Map(); // school photos: uploaded by students, shown after admin approval
 let siteIcon = null; // data URL of the browser-tab icon; null means the default icon
 const imagePattern = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
 const issuedByAddress = new Map();
@@ -88,6 +89,7 @@ if (saved) {
   for (const post of saved.posts ?? []) posts.set(post.id, post);
   for (const initiative of saved.initiatives ?? []) initiatives.set(initiative.id, initiative);
   for (const problem of saved.problems ?? []) problems.set(problem.id, problem);
+  for (const photo of saved.gallery ?? []) gallery.set(photo.id, photo);
   siteIcon = typeof saved.siteIcon === 'string' && imagePattern.test(saved.siteIcon) ? saved.siteIcon : null;
 } else {
   classes.add('10A');
@@ -118,6 +120,7 @@ function persist() {
   posts: [...posts.values()],
   initiatives: [...initiatives.values()],
   problems: [...problems.values()],
+  gallery: [...gallery.values()],
   siteIcon
   }, null, 2);
   saveQueue = saveQueue.catch(() => {}).then(async () => {
@@ -182,6 +185,17 @@ function publicPost(post, account) {
   const attendees = Array.isArray(post.attendees) ? post.attendees : [];
   const { attendees: storedAttendees, ...visiblePost } = post;
   return { ...visiblePost, goingCount: attendees.length, going: Boolean(account && attendees.includes(account.telegramId)) };
+}
+
+function publicGallery(account) {
+  const admin = isAdmin(account);
+  return [...gallery.values()]
+    .filter(photo => photo.status === 'approved' || (account && (admin || String(photo.authorTelegramId) === String(account.telegramId))))
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .map(photo => {
+      const mine = Boolean(account) && String(photo.authorTelegramId) === String(account.telegramId);
+      return { id: photo.id, image: photo.image, caption: photo.caption, status: photo.status, authorName: photo.authorName, schoolClass: photo.schoolClass, createdAt: photo.createdAt, mine, canManage: mine || admin };
+    });
 }
 
 function publicProblem(problem, key = '') {
@@ -339,8 +353,38 @@ const server = createServer(async (request, response) => {
       return json(response, 200, {
         classes: [...classes].sort((a, b) => a.localeCompare(b, 'ru')),
         posts: [...posts.values()].sort((a, b) => Number(b.scheduledAt ?? b.createdAt) - Number(a.scheduledAt ?? a.createdAt)).map(post => publicPost(post, account)),
-        initiatives: [...initiatives.values()].sort((a, b) => b.createdAt - a.createdAt).map(idea => publicInitiative(idea, account))
+        initiatives: [...initiatives.values()].sort((a, b) => b.createdAt - a.createdAt).map(idea => publicInitiative(idea, account)),
+        gallery: publicGallery(account)
       });
+    }
+    if (request.method === 'GET' && url.pathname === '/school.jpg') {
+      const photo = await readFile(path.join(directory, '..', 'school.jpg'));
+      response.writeHead(200, { ...securityHeaders, 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=3600' });
+      return response.end(photo);
+    }
+    if (request.method === 'POST' && url.pathname === '/api/gallery') {
+      const account = getAccount(request);
+      if (!account) return json(response, 401, { error: 'Войди в аккаунт, чтобы добавить фото.' });
+      const body = await readBody(request, 2_000_000);
+      const image = typeof body.image === 'string' && imagePattern.test(body.image) && body.image.length <= 1_500_000 ? body.image : null;
+      if (!image) return json(response, 400, { error: 'Выбери фото JPG, PNG или WebP до 1 МБ.' });
+      const caption = String(body.caption ?? '').trim().slice(0, 120);
+      const mine = [...gallery.values()].filter(photo => String(photo.authorTelegramId) === String(account.telegramId)).length;
+      if (mine >= 15) return json(response, 409, { error: 'Можно добавить не больше 15 фото.' });
+      const photo = { id: randomBytes(8).toString('hex'), image, caption, status: isAdmin(account) ? 'approved' : 'pending', authorTelegramId: String(account.telegramId), authorName: `${account.firstName} ${account.lastName}`, schoolClass: account.schoolClass, createdAt: Date.now() };
+      gallery.set(photo.id, photo);
+      await persist();
+      return json(response, 201, { photo: publicGallery(account).find(item => item.id === photo.id) });
+    }
+    const galleryItemMatch = url.pathname.match(/^\/api\/gallery\/([a-f0-9]+)$/);
+    if (galleryItemMatch && request.method === 'DELETE') {
+      const account = getAccount(request);
+      const photo = gallery.get(galleryItemMatch[1]);
+      if (!account || !photo) return json(response, 404, { error: 'Фото не найдено.' });
+      if (!isAdmin(account) && String(photo.authorTelegramId) !== String(account.telegramId)) return json(response, 403, { error: 'Удалить можно только своё фото.' });
+      gallery.delete(photo.id);
+      await persist();
+      return json(response, 200, { ok: true });
     }
     const rsvpMatch = url.pathname.match(/^\/api\/events\/([a-f0-9]+)\/rsvp$/);
     if (request.method === 'POST' && rsvpMatch) {
@@ -686,6 +730,14 @@ const server = createServer(async (request, response) => {
       if (adminPostMatch && request.method === 'DELETE') {
         if (!posts.has(adminPostMatch[1])) return json(response, 404, { error: 'Публикация не найдена.' });
         posts.delete(adminPostMatch[1]);
+        await persist();
+        return json(response, 200, { ok: true });
+      }
+      const adminPhotoMatch = url.pathname.match(/^\/api\/admin\/gallery\/([a-f0-9]+)$/);
+      if (adminPhotoMatch && request.method === 'PATCH') {
+        const photo = gallery.get(adminPhotoMatch[1]);
+        if (!photo) return json(response, 404, { error: 'Фото не найдено.' });
+        photo.status = 'approved';
         await persist();
         return json(response, 200, { ok: true });
       }
